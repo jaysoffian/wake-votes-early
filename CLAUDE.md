@@ -60,3 +60,19 @@ records decisions and gotchas that aren't obvious from the code.
   arrow. Regenerate with the command in README.md; output goes to `App/Assets.xcassets/AppIcon.appiconset`.
 - The user's Xcode had a stale Swift 5.7.1 toolchain override (`DVTDefaultToolchainOverrideIdentifer`); if
   builds fail with dependency-scan errors from `/Library/Developer/Toolchains`, that's why.
+
+## Rejected iOS layout experiments (2026-10-16; don't propose again)
+
+The user wanted the bottom card to take less space, but rejected each of these in turn. The current layout
+(full-height glass bottom card with address field, location button, labeled "Avoid tolls" switch and status
+line; glass List/Map capsule at top; pull-to-refresh; no navigation bar) is the one to keep. The attempts
+remain in git history (commits 85e65d7e83, 4f9f889ebe, eaa4315154, reverted by 112e39b3ca) if a piece is
+ever useful.
+
+- Compact card with an icon-only toll toggle: "totally non-obvious." Controls need text labels.
+- Card that collapses to one line when idle and expands on tap: "weird hybrid hack, not iOS-like."
+- All-system layout with `.searchable` for the address, picker in the nav bar's principal slot, an Options
+  menu holding Avoid Tolls, and the status as a list section header: "Yuck."
+- Earlier: a `.button`-style Toggle in the iOS toolbar draws its own capsule inside iOS 26's glass toolbar
+  group and looks broken; a one-item Menu for a single toggle is silly; the large navigation title and a
+  separate Refresh button were removed as wasted space.
