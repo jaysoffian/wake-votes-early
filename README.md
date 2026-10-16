@@ -16,7 +16,7 @@ Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line
 - **iOS:** controls live in a glass card at the bottom: starting address, location button, an **Avoid tolls** switch, and the status line. Pull down the list to refresh. The home-screen label is **Vote Early**, since the full name doesn't fit under an icon.
 - **macOS:** address at the top, **Avoid Tolls** and **Refresh** (⌘R) in the toolbar, status line at the bottom.
 
-Wait times refresh every 5 minutes on their own. Drive times are cached for 10 minutes per starting point and toll setting; changing either recomputes them.
+Wait times refresh every 5 minutes on their own. Drive times are cached for 10 minutes per starting point and toll setting; changing either recomputes them. A manual refresh (pull down on iOS, Refresh on macOS) also re-fetches drive times, but only when MapKit's request budget can take the whole batch without pausing; otherwise the cached ones are kept. The status line shows when each was last fetched.
 
 If Xcode picks up an old Swift toolchain (build log shows `/Library/Developer/Toolchains/...`), switch it back with **Xcode › Toolchains › Xcode**.
 

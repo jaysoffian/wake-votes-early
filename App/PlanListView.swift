@@ -32,7 +32,7 @@ struct PlanListView: View {
                 }
             }
             .listStyle(.inset)
-            .refreshable { await model.refresh() }
+            .refreshable { await model.refresh(userInitiated: true) }
         }
     }
 }

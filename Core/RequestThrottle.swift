@@ -48,6 +48,12 @@ public actor RequestThrottle {
         persist()
     }
 
+    /// Requests that could start right now without waiting.
+    public var availableSlots: Int {
+        let now = Date()
+        return max(0, limit - stamps.filter { now.timeIntervalSince($0) < window }.count)
+    }
+
     /// Seconds until the next slot frees up, or 0 if one is available now.
     public var delayUntilNextSlot: TimeInterval {
         let now = Date()

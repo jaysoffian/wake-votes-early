@@ -54,6 +54,8 @@ records decisions and gotchas that aren't obvious from the code.
   sites share them. The footer uses absolute times ("refreshed at 3:42 PM"), never a one-shot "now".
 - Site names must wrap, never truncate ("Wake Technical Community College South Campus" needs 3 lines on an
   iPhone mini). Chips and status use `ViewThatFits` to stack on narrow screens.
+- Manual refresh (`refresh(userInitiated: true)`) bypasses the 10-min trip cache only if
+  `RequestThrottle.mapKit.availableSlots` covers a full batch; auto-refresh never bypasses it.
 - Show the wait-only ranking immediately after Airtable responds; drive times fill in when the batch finishes.
   Spinners cover only their own step; a new recompute cancels the in-flight one and keeps partial results.
 - App icon is drawn in code (`Support/icon/icongen.swift`): yellow "WAKE VOTES EARLY" yard sign with red

@@ -40,6 +40,8 @@ final class PlannerModel {
     var isLocating = false
     var errorMessage: String?
     var lastRefresh: Date?
+    /// When drive times were last actually fetched from MapKit (not served from cache).
+    var lastTripFetch: Date?
     var now = Date()
 
     private let waitService = WaitTimeService()
@@ -77,7 +79,10 @@ final class PlannerModel {
         }
     }
 
-    func refresh() async {
+    /// Re-fetches wait times and re-ranks. With `userInitiated`, drive times are also re-fetched
+    /// instead of served from cache, but only if MapKit's request budget can absorb the whole batch
+    /// without pausing.
+    func refresh(userInitiated: Bool = false) async {
         guard !isRefreshing else { return }
         isRefreshing = true
         errorMessage = nil
@@ -88,19 +93,25 @@ final class PlannerModel {
             errorMessage = "Wait times unavailable: \(error.localizedDescription)"
         }
         isRefreshing = false
-        await recomputePlans()
+        await recomputePlans(forceFreshTrips: userInitiated)
     }
 
     /// Recomputes drive times and the ranking. A new call cancels any batch still in flight;
     /// whatever that batch already fetched stays cached.
-    func recomputePlans() async {
+    func recomputePlans(forceFreshTrips: Bool = false) async {
         recomputeTask?.cancel()
-        let task = Task { await computePlans() }
+        let task = Task { await computePlans(forceFreshTrips: forceFreshTrips) }
         recomputeTask = task
         await task.value
     }
 
-    private func computePlans() async {
+    /// Requests a full batch would make: one outbound per site plus the exact return legs.
+    private var fullBatchRequestCount: Int {
+        let routable = sites.filter { $0.coordinate != nil }.count
+        return routable + min(8, routable)
+    }
+
+    private func computePlans(forceFreshTrips: Bool) async {
         now = Date()
         var trips: [String: RoundTrip] = [:]
         if let origin {
@@ -117,7 +128,10 @@ final class PlannerModel {
             }
             defer { ticker.cancel() }
             let key = Self.cacheKey(origin, avoidTolls: avoidTolls)
-            let fresh = (tripCaches[key] ?? [:]).filter { now.timeIntervalSince($0.value.computedAt) < Self.tripTTL }
+            var fresh = (tripCaches[key] ?? [:]).filter { now.timeIntervalSince($0.value.computedAt) < Self.tripTTL }
+            if forceFreshTrips, await RequestThrottle.mapKit.availableSlots >= fullBatchRequestCount {
+                fresh = [:]   // budget allows a full re-fetch with no waiting
+            }
             // Show what we already know right away (cached trips, or wait-only ranking); the batch
             // below can take a while when the rate limiter is pausing.
             plans = Planner.plans(for: sites, trips: fresh, departing: now, schedule: Self.schedule, hasOrigin: false)
@@ -133,6 +147,7 @@ final class PlannerModel {
             throttleWait = 0
             tripCaches[key] = batch.trips
             if batch.wasCancelled { return }   // a newer batch owns the UI now
+            if batch.trips.values.contains(where: { $0.computedAt == now }) { lastTripFetch = now }
             isComputingTrips = false
             tripProgress = nil
             trips = batch.trips
