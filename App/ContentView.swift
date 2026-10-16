@@ -31,9 +31,12 @@ struct ContentView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 6)
             }
-            .navigationTitle("Wake Early Voting")
             #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)   // one compact bar for title + buttons
+            // No title on the phone: the bar exists only to hold the two buttons.
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarTitleDisplayMode(.inline)
+            #else
+            .navigationTitle("Wake Early Voting")   // window title; costs no space on macOS
             #endif
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
