@@ -42,7 +42,7 @@ WAKEVOTE_FIXTURE=saved.json wakevote-cli ...    # parse a saved Airtable respons
 | `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking |
 | `App/` | SwiftUI app (`PlannerModel` owns the refresh loop; views for list and map) and the asset catalog with the app icon |
 | `CLI/` | `wakevote-cli` entry point |
-| `Support/` | Info.plist, plus `icon/icongen.swift` which renders the app icon from the extracted county site map |
+| `Support/` | Info.plist, plus `icon/icongen.swift` which renders the app icon from the extracted county site map, recolored to Wake County's brand brown and indigo |
 
 The Xcode project uses synchronized folders, so new files dropped into `App/`, `Core/`, or `CLI/` are picked up automatically.
 

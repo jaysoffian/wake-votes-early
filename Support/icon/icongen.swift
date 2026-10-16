@@ -11,10 +11,54 @@ let outDir = URL(fileURLWithPath: CommandLine.arguments[2])
 try? FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
 
 guard let source = CGImageSourceCreateWithURL(src as CFURL, nil),
-      let map = CGImageSourceCreateImageAtIndex(source, 0, nil) else { fatalError("cannot load \(src.path)") }
+      let rawMap = CGImageSourceCreateImageAtIndex(source, 0, nil) else { fatalError("cannot load \(src.path)") }
 
-/// Tile background: the navy of the county's title bar.
-let navy = CGColor(srgbRed: 74/255, green: 85/255, blue: 120/255, alpha: 1)
+// Wake County brand colors, from https://www.wake.gov/themes/custom/paladin/images/WCLogoFullColor.svg
+struct RGB { var r: Double, g: Double, b: Double
+    init(_ hex: UInt32) { r = Double((hex >> 16) & 0xff) / 255; g = Double((hex >> 8) & 0xff) / 255; b = Double(hex & 0xff) / 255 }
+    init(r: Double, g: Double, b: Double) { self.r = r; self.g = g; self.b = b }
+    func mixed(with o: RGB, _ t: Double) -> RGB { RGB(r: r + (o.r - r) * t, g: g + (o.g - g) * t, b: b + (o.b - b) * t) }
+    var cgColor: CGColor { CGColor(srgbRed: r, green: g, blue: b, alpha: 1) }
+}
+let brandBrown = RGB(0x9e6c5d)
+let brandIndigo = RGB(0x363168)
+/// Tile background.
+let navy = brandIndigo.cgColor
+
+/// Three-stop ramp: luminance 0 → dark, 0.5 → mid, 1 → light.
+func ramp(_ l: Double, dark: RGB, mid: RGB, light: RGB) -> RGB {
+    l < 0.5 ? dark.mixed(with: mid, l * 2) : mid.mixed(with: light, (l - 0.5) * 2)
+}
+
+/// Recolors the gray map onto a brown ramp and the blue site markers onto an indigo ramp,
+/// preserving luminance so roads, water and labels keep their detail.
+func tinted(_ image: CGImage) -> CGImage {
+    let w = image.width, h = image.height
+    let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+                        space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+    ctx.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+    let px = ctx.data!.bindMemory(to: UInt8.self, capacity: w * h * 4)
+    for p in 0..<(w * h) {
+        let i = p * 4
+        let a = Double(px[i + 3]) / 255
+        guard a > 0 else { continue }
+        // Un-premultiply, then compute luminance and saturation.
+        let r = Double(px[i]) / 255 / a, g = Double(px[i + 1]) / 255 / a, b = Double(px[i + 2]) / 255 / a
+        let l = min(1, 0.2126 * r + 0.7152 * g + 0.0722 * b)
+        let sat = max(r, g, b) - min(r, g, b)
+        let out: RGB
+        if sat > 0.15 {
+            // Site markers: steel blue → indigo, kept a bit lighter than the tile so they stand out.
+            out = ramp(l, dark: RGB(0x241f4a), mid: brandIndigo.mixed(with: RGB(0xffffff), 0.25), light: RGB(0xc7c3e3))
+        } else {
+            out = ramp(l, dark: RGB(0x3a2620), mid: brandBrown, light: RGB(0xf1e4dc))
+        }
+        px[i] = UInt8(max(0, min(255, out.r * a * 255)))
+        px[i + 1] = UInt8(max(0, min(255, out.g * a * 255)))
+        px[i + 2] = UInt8(max(0, min(255, out.b * a * 255)))
+    }
+    return ctx.makeImage()!
+}
 
 /// Bounding box of the opaque pixels, so the map is centered regardless of how it was cropped.
 func opaqueBounds(_ image: CGImage) -> CGRect {
@@ -31,6 +75,7 @@ func opaqueBounds(_ image: CGImage) -> CGRect {
     return CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
 }
 
+let map = tinted(rawMap)
 let bounds = opaqueBounds(map)
 let side = max(bounds.width, bounds.height)
 let square = CGRect(x: bounds.midX - side / 2, y: bounds.midY - side / 2, width: side, height: side)
