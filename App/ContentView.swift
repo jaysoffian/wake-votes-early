@@ -32,6 +32,9 @@ struct ContentView: View {
                     .padding(.vertical, 6)
             }
             .navigationTitle("Wake Early Voting")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)   // one compact bar for title + buttons
+            #endif
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Toggle("Avoid Tolls", isOn: $model.avoidTolls)
