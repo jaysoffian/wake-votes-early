@@ -18,42 +18,29 @@ struct SiteRow: View {
                 .padding(.top, 2)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(site.name)
-                    .font(.headline)
-                    .fixedSize(horizontal: false, vertical: true)   // wrap as many lines as needed
-                Text(site.address)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                // Name and address share the row with the trailing column; the chips and
+                // status below get the full width so they stay on one line.
+                HStack(alignment: .top, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(site.name)
+                            .font(.headline)
+                            .fixedSize(horizontal: false, vertical: true)   // wrap as many lines as needed
+                        Text(site.address)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: 8)
+                    VStack(alignment: .trailing, spacing: 4) {
+                        directionsBadge
+                        detailsButton
+                    }
+                }
                 legs
                 statusLine
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer(minLength: 8)
-
-            // Trailing column: directions capsule, then the county's site-details PDF.
-            VStack(alignment: .trailing, spacing: 8) {
-                directionsBadge
-                if let details = site.detailsURL {
-                    Button {
-                        #if os(iOS)
-                        webLink = WebLink(url: details)
-                        #else
-                        openURL(details)
-                        #endif
-                    } label: {
-                        Image(systemName: "doc.text")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                            .frame(minWidth: 28, minHeight: 24)
-                    }
-                    .buttonStyle(.plain)   // plain, so the row itself isn't the tap target
-                    .help("County site details (parking, entrance, accessibility)")
-                    .accessibilityLabel("Site details for \(site.name)")
-                }
             }
         }
         .padding(.vertical, 4)
@@ -64,6 +51,28 @@ struct SiteRow: View {
                 .ignoresSafeArea()
         }
         #endif
+    }
+
+    /// The county's site-details PDF (parking, entrance, accessibility).
+    @ViewBuilder
+    private var detailsButton: some View {
+        if let details = site.detailsURL {
+            Button {
+                #if os(iOS)
+                webLink = WebLink(url: details)
+                #else
+                openURL(details)
+                #endif
+            } label: {
+                Image(systemName: "doc.text")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .frame(minWidth: 28, minHeight: 20)
+            }
+            .buttonStyle(.plain)   // plain, so the row itself isn't the tap target
+            .help("County site details (parking, entrance, accessibility)")
+            .accessibilityLabel("Site details for \(site.name)")
+        }
     }
 
     /// The total-time capsule doubles as the "open in Maps" button.
