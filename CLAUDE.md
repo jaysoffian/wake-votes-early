@@ -57,7 +57,7 @@ records decisions and gotchas that aren't obvious from the code.
 - Show the wait-only ranking immediately after Airtable responds; drive times fill in when the batch finishes.
   Spinners cover only their own step; a new recompute cancels the in-flight one and keeps partial results.
 - App icon is drawn in code (`Support/icon/icongen.swift`): yellow "WAKE VOTES EARLY" yard sign with red
-  arrow. Product/display name is "Wake Votes Early"; bundle ID stays org.soffian.WakeVote (changing it
+  arrow. Product name is "Wake Votes Early"; display name is "Wake Votes Early" on macOS and "Vote Early" on iOS (APP_DISPLAY_NAME build setting with per-SDK override, referenced from Info.plist); bundle ID stays org.soffian.WakeVote (changing it
   would reset location permission and MapKit's per-app throttle state). Regenerate with the command in README.md; output goes to `App/Assets.xcassets/AppIcon.appiconset`.
 - The user's Xcode had a stale Swift 5.7.1 toolchain override (`DVTDefaultToolchainOverrideIdentifer`); if
   builds fail with dependency-scan errors from `/Library/Developer/Toolchains`, that's why.

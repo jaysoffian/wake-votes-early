@@ -55,14 +55,14 @@ func drawSign(in ctx: CGContext, tile: CGRect) {
     }
     let textBottom = baseline + capHeight + gap      // bottom of the last line
 
-    // Arrow: shaft plus head, spanning most of the width like the sign's.
+    // Arrow: shaft plus head, as wide as the text block above it.
     let arrowTop = textBottom - w * 0.07
     let arrowBottom = tile.minY + w * 0.10
     let arrowHeight = arrowTop - arrowBottom
-    let shaftHeight = arrowHeight * 0.52
-    let left = tile.minX + w * 0.09
-    let right = tile.maxX - w * 0.09
-    let headLength = arrowHeight * 0.95
+    let shaftHeight = arrowHeight * 0.64
+    let left = tile.midX - w * 0.37
+    let right = tile.midX + w * 0.37
+    let headLength = arrowHeight * 0.85
     let midY = (arrowTop + arrowBottom) / 2
     let path = CGMutablePath()
     path.move(to: CGPoint(x: left, y: midY + shaftHeight / 2))
