@@ -24,18 +24,22 @@ struct ContentView: View {
     // MARK: - iOS: results on top, controls in a floating card at the bottom
 
     private var phoneLayout: some View {
-        VStack(spacing: 0) {
-            modePicker
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-            content
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            controlCard
-        }
+        content
+            .softScrollEdges()
+            .safeAreaInset(edge: .top, spacing: 0) {
+                // Floating glass capsule; the list scrolls underneath it.
+                modePicker
+                    .padding(4)
+                    .adaptiveGlass(in: Capsule())
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                controlCard
+            }
     }
 
-    /// Bottom sheet-style card: content stays above the home indicator, the material runs to the screen edge.
+    /// Bottom sheet-style card: content stays above the home indicator, the glass runs to the screen edge.
     private var controlCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             originBar
@@ -52,8 +56,8 @@ struct ContentView: View {
         .padding(.bottom, 2)
         .frame(maxWidth: .infinity)
         .background {
-            UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20, style: .continuous)
-                .fill(.regularMaterial)
+            Color.clear
+                .adaptiveGlass(in: UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20, style: .continuous))
                 .ignoresSafeArea(edges: .bottom)
                 .shadow(color: .black.opacity(0.12), radius: 8, y: -2)
         }
