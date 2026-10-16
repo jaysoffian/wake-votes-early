@@ -4,6 +4,9 @@ struct SiteRow: View {
     let rank: Int
     let plan: SitePlan
 
+    @State private var webLink: WebLink?
+    @Environment(\.openURL) private var openURL
+
     private var site: VotingSite { plan.site }
 
     var body: some View {
@@ -15,36 +18,52 @@ struct SiteRow: View {
                 .padding(.top, 2)
 
             VStack(alignment: .leading, spacing: 5) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(site.name)
-                        .font(.headline)
-                        .fixedSize(horizontal: false, vertical: true)   // wrap as many lines as needed
-                        .layoutPriority(1)
-                    Spacer(minLength: 0)
-                    directionsBadge
-                }
-                HStack(spacing: 8) {
-                    Text(site.address)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                    if let details = site.detailsURL {
-                        Link(destination: details) {
-                            Label("Site details", systemImage: "doc.text")
-                                .font(.caption)
-                        }
-                        .help("County PDF: parking, entrance and accessibility for this site")
-                    }
-                }
+                Text(site.name)
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)   // wrap as many lines as needed
+                Text(site.address)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 legs
                 statusLine
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+
+            Spacer(minLength: 8)
+
+            // Trailing column: directions capsule, then the county's site-details PDF.
+            VStack(alignment: .trailing, spacing: 8) {
+                directionsBadge
+                if let details = site.detailsURL {
+                    Button {
+                        #if os(iOS)
+                        webLink = WebLink(url: details)
+                        #else
+                        openURL(details)
+                        #endif
+                    } label: {
+                        Image(systemName: "doc.text")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .frame(minWidth: 28, minHeight: 24)
+                    }
+                    .buttonStyle(.plain)   // plain, so the row itself isn't the tap target
+                    .help("County site details (parking, entrance, accessibility)")
+                    .accessibilityLabel("Site details for \(site.name)")
+                }
+            }
         }
         .padding(.vertical, 4)
         .opacity(plan.isViable ? 1 : 0.55)
+        #if os(iOS)
+        .sheet(item: $webLink) { link in
+            SafariView(url: link.url)
+                .ignoresSafeArea()
+        }
+        #endif
     }
 
     /// The total-time capsule doubles as the "open in Maps" button.

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		AA00000000000000000000A0 /* Wake Vote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Wake Votes Early.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000000000000A0 /* Wake Votes Early.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Wake Votes Early.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000000000000A1 /* wakevote-cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "wakevote-cli"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000000000000A2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -59,7 +59,7 @@
 		AA000000000000000000000E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA00000000000000000000A0 /* Wake Vote.app */,
+				AA00000000000000000000A0 /* Wake Votes Early.app */,
 				AA00000000000000000000A1 /* wakevote-cli */,
 			);
 			name = Products;
@@ -99,7 +99,7 @@
 			packageProductDependencies = (
 			);
 			productName = WakeVote;
-			productReference = AA00000000000000000000A0 /* Wake Vote.app */;
+			productReference = AA00000000000000000000A0 /* Wake Votes Early.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AA00000000000000000000C1 /* wakevote-cli */ = {
