@@ -106,6 +106,16 @@ final class PlannerModel {
         if let origin {
             isComputingTrips = true
             tripProgress = nil
+            // Tick the rate-limit countdown once a second while the batch runs; nothing else
+            // updates it while the limiter is holding requests back.
+            let ticker = Task { [weak self] in
+                while !Task.isCancelled {
+                    let wait = await RequestThrottle.mapKit.delayUntilNextSlot
+                    await MainActor.run { self?.throttleWait = wait }
+                    try? await Task.sleep(for: .seconds(1))
+                }
+            }
+            defer { ticker.cancel() }
             let key = Self.cacheKey(origin, avoidTolls: avoidTolls)
             let fresh = (tripCaches[key] ?? [:]).filter { now.timeIntervalSince($0.value.computedAt) < Self.tripTTL }
             let batch = await Planner.roundTrips(
@@ -114,10 +124,7 @@ final class PlannerModel {
                 travel: TravelService(avoidTolls: avoidTolls),
                 skipping: fresh,
                 onProgress: { [weak self] done, total in
-                    Task { @MainActor in
-                        self?.tripProgress = (done, total)
-                        self?.throttleWait = await RequestThrottle.mapKit.delayUntilNextSlot
-                    }
+                    Task { @MainActor in self?.tripProgress = (done, total) }
                 }
             )
             throttleWait = 0

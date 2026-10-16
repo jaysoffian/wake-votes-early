@@ -3,6 +3,12 @@ import SwiftUI
 struct PlanListView: View {
     var model: PlannerModel
 
+    #if os(iOS)
+    private static let retryHint = "Pull down to try again."
+    #else
+    private static let retryHint = "Press Refresh (⌘R) to try again."
+    #endif
+
     var body: some View {
         if model.plans.isEmpty {
             if model.isRefreshing {
@@ -11,7 +17,7 @@ struct PlanListView: View {
             } else {
                 ContentUnavailableView("No sites loaded",
                                        systemImage: "wifi.exclamationmark",
-                                       description: Text(model.errorMessage ?? "Pull to refresh or press Refresh."))
+                                       description: Text(model.errorMessage ?? Self.retryHint))
             }
         } else {
             List {

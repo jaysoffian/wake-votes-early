@@ -91,7 +91,8 @@ struct ContentView: View {
             if model.isComputingTrips {
                 ProgressView().controlSize(.mini)
                 if let p = model.tripProgress, model.throttleWait > 1 {
-                    Text("Computing drive times… \(p.done) of \(p.total). Pausing \(Int(model.throttleWait))s for Apple Maps' rate limit.")
+                    Text("Computing drive times… \(p.done) of \(p.total). Pausing \(Int(model.throttleWait.rounded(.up)))s for Apple Maps' rate limit.")
+                        .monospacedDigit()
                 } else if let p = model.tripProgress {
                     Text("Computing drive times… \(p.done) of \(p.total) requests")
                 } else {
