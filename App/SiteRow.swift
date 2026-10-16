@@ -28,9 +28,24 @@ struct SiteRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 legs
-                statusLine
-                    .font(.caption)
-                    .fixedSize(horizontal: false, vertical: true)
+                HStack(alignment: .bottom, spacing: 8) {
+                    statusLine
+                        .font(.caption)
+                        .fixedSize(horizontal: false, vertical: true)
+                    #if os(iOS)
+                    Spacer(minLength: 0)
+                    Button {
+                        Directions.open(site)
+                    } label: {
+                        Label("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .tint(.blue)
+                    .disabled(site.coordinate == nil)
+                    #endif
+                }
             }
 
             #if os(macOS)
