@@ -32,17 +32,23 @@ struct SiteMapView: View {
             }
         }
         .overlay(alignment: .bottom) {
-            if let selectedID, let plan = model.plans.first(where: { $0.id == selectedID }) {
-                SelectedSiteCard(rank: (model.plans.firstIndex { $0.id == selectedID } ?? 0) + 1, plan: plan) {
-                    self.selectedID = nil
-                }
-                .padding()
+            if let selectedID, let index = model.plans.firstIndex(where: { $0.id == selectedID }) {
+                // Same row as the list, so directions, site details and the chips behave identically.
+                SiteRow(rank: index + 1, plan: model.plans[index])
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .adaptiveGlass(in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .animation(.snappy(duration: 0.2), value: selectedID)
     }
 
+    /// Marker color follows the ranking total (drive + wait + drive), like the list's capsules;
+    /// falls back to the wait color before drive times are known.
     private func marker(rank: Int, plan: SitePlan) -> some View {
-        let color = WaitColor.color(for: plan.site.waitMinutes)
+        let color = plan.total != nil ? WaitColor.color(forTotal: plan.total) : WaitColor.color(for: plan.site.waitMinutes)
         return Text("\(rank)")
             .font(.caption.weight(.bold).monospacedDigit())
             .foregroundStyle(.white)
@@ -51,47 +57,5 @@ struct SiteMapView: View {
             .overlay(Circle().stroke(.white, lineWidth: 2))
             .shadow(radius: 2)
             .opacity(plan.isViable ? 1 : 0.5)
-    }
-}
-
-private struct SelectedSiteCard: View {
-    let rank: Int
-    let plan: SitePlan
-    let dismiss: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text("#\(rank)  \(plan.site.name)")
-                    .font(.headline)
-                Spacer()
-                Button(action: dismiss) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.borderless)
-            }
-            HStack(spacing: 12) {
-                Label(Format.minutes(plan.trip?.outbound), systemImage: "car.fill")
-                Label(plan.site.waitDisplay, systemImage: "person.3.fill")
-                    .foregroundStyle(WaitColor.color(for: plan.site.waitMinutes))
-                Label(plan.trip.map { Format.inbound($0) } ?? "–", systemImage: "car.fill")
-                Spacer()
-                Text(plan.total.map(Format.minutes) ?? "–")
-                    .font(.headline.monospacedDigit())
-                    .foregroundStyle(WaitColor.color(forTotal: plan.total))
-            }
-            .font(.subheadline)
-            Button {
-                Directions.open(plan.site)
-            } label: {
-                Label("Directions in Maps", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.small)
-        }
-        .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .shadow(radius: 6)
     }
 }
