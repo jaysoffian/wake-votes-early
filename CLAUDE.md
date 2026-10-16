@@ -1,4 +1,4 @@
-# Wake Vote: notes for Claude Code sessions
+# Wake Early Voting: notes for Claude Code sessions
 
 Native SwiftUI app (macOS 14+ / iOS 17+, one multiplatform target) plus `wakevote-cli`, ranking Wake County
 early-voting sites by drive there + published wait + drive back. README.md explains the product; this file
@@ -56,8 +56,9 @@ records decisions and gotchas that aren't obvious from the code.
   iPhone mini). Chips and status use `ViewThatFits` to stack on narrow screens.
 - Show the wait-only ranking immediately after Airtable responds; drive times fill in when the batch finishes.
   Spinners cover only their own step; a new recompute cancels the in-flight one and keeps partial results.
-- App icon is drawn in code (`Support/icon/icongen.swift`): yellow "EARLY VOTING SITE" yard sign with red
-  arrow. Regenerate with the command in README.md; output goes to `App/Assets.xcassets/AppIcon.appiconset`.
+- App icon is drawn in code (`Support/icon/icongen.swift`): yellow "WAKE EARLY VOTING" yard sign with red
+  arrow. Product/display name is "Wake Early Voting"; bundle ID stays org.soffian.WakeVote (changing it
+  would reset location permission and MapKit's per-app throttle state). Regenerate with the command in README.md; output goes to `App/Assets.xcassets/AppIcon.appiconset`.
 - The user's Xcode had a stale Swift 5.7.1 toolchain override (`DVTDefaultToolchainOverrideIdentifer`); if
   builds fail with dependency-scan errors from `/Library/Developer/Toolchains`, that's why.
 
