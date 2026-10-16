@@ -39,20 +39,29 @@ struct ContentView: View {
             }
     }
 
-    /// Bottom sheet-style card: content stays above the home indicator, the glass runs to the screen edge.
+    /// Bottom sheet-style card: one input row plus a one-line status; content stays above the home
+    /// indicator and the glass runs to the screen edge.
     private var controlCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            originBar
-            Toggle(isOn: $model.avoidTolls) {
-                Label("Avoid tolls", systemImage: "road.lanes")
-                    .font(.subheadline)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                originBar
+                Toggle(isOn: $model.avoidTolls) {
+                    Image(systemName: "road.lanes")
+                }
+                .toggleStyle(.button)
+                .buttonStyle(.bordered)
+                .tint(model.avoidTolls ? .blue : .secondary)
+                .help("Avoid toll roads")
+                .accessibilityLabel("Avoid tolls")
             }
-            .toggleStyle(.switch)
-            .controlSize(.small)
-            footer
+            compactStatus
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(model.errorMessage == nil ? 1 : 2)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 16)
-        .padding(.top, 12)
+        .padding(.top, 10)
         .padding(.bottom, 2)
         .frame(maxWidth: .infinity)
         .background {
@@ -60,6 +69,22 @@ struct ContentView: View {
                 .adaptiveGlass(in: UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20, style: .continuous))
                 .ignoresSafeArea(edges: .bottom)
                 .shadow(color: .black.opacity(0.12), radius: 8, y: -2)
+        }
+    }
+
+    /// Terse status for the phone card.
+    @ViewBuilder
+    private var compactStatus: some View {
+        if model.isComputingTrips {
+            let progress = model.tripProgress.map { " \($0.done)/\($0.total)" } ?? ""
+            let pause = model.throttleWait > 1 ? " · pausing \(Int(model.throttleWait.rounded(.up)))s for rate limit" : ""
+            Text("Computing drive times…\(progress)\(pause)").monospacedDigit()
+        } else if model.isRefreshing {
+            Text("Fetching wait times…")
+        } else if let error = model.errorMessage {
+            Text(error)
+        } else if let last = model.lastRefresh {
+            Text("\(hoursText(short: true)) · Waits as of \(Format.clock(last)) · Apple Maps\(model.avoidTolls ? ", no tolls" : "")")
         }
     }
 
@@ -168,7 +193,7 @@ struct ContentView: View {
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
                 Text(error)
             } else if let last = model.lastRefresh {
-                Text("\(hoursText) Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
+                Text("\(hoursText(short: false)) Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
             }
             Spacer(minLength: 0)
         }
@@ -178,18 +203,26 @@ struct ContentView: View {
     }
 
     /// County-wide hours for today; every site keeps the same schedule.
-    private var hoursText: String {
+    private func hoursText(short: Bool) -> String {
         let now = model.now
         guard let hours = PlannerModel.schedule.hours(on: now) else {
-            return "No early voting today." + nextOpeningText(after: now)
+            return short ? "No early voting today" + nextOpeningText(after: now, short: true)
+                         : "No early voting today." + nextOpeningText(after: now, short: false)
         }
-        if now >= hours.close { return "Sites closed for the day." + nextOpeningText(after: now) }
-        if now < hours.open { return "Sites open at \(Format.clock(hours.open)) today, until \(Format.clock(hours.close))." }
-        return "Sites open until \(Format.clock(hours.close))."
+        if now >= hours.close {
+            return short ? "Closed" + nextOpeningText(after: now, short: true)
+                         : "Sites closed for the day." + nextOpeningText(after: now, short: false)
+        }
+        if now < hours.open {
+            return short ? "Opens \(Format.clock(hours.open))"
+                         : "Sites open at \(Format.clock(hours.open)) today, until \(Format.clock(hours.close))."
+        }
+        return short ? "Open until \(Format.clock(hours.close))" : "Sites open until \(Format.clock(hours.close))."
     }
 
-    private func nextOpeningText(after date: Date) -> String {
+    private func nextOpeningText(after date: Date, short: Bool) -> String {
         guard let next = PlannerModel.schedule.nextOpening(after: date) else { return "" }
-        return " Next: \(next.open.formatted(.dateTime.weekday(.wide).hour().minute()))."
+        let when = next.open.formatted(.dateTime.weekday(short ? .abbreviated : .wide).hour().minute())
+        return short ? ", next \(when)" : " Next: \(when)."
     }
 }
