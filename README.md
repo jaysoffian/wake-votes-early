@@ -11,7 +11,12 @@ Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line
    - **Your iPhone** needs a team: select the WakeVote target → Signing & Capabilities → choose your Apple ID team. A free Apple ID works; the build expires after 7 days and you re-run from Xcode.
 3. Press Run. Type a starting address and press Return, or tap the location button. The starting point is remembered between launches.
 
-Toolbar: **Avoid Tolls** toggles toll-free routing (persisted; drive times recompute when you change it) and **Refresh** (⌘R) re-fetches everything. Wait times refresh every 5 minutes on their own; drive times are cached for 10 minutes per starting point and toll setting. Tap the directions icon on a row, or a pin on the map, to open Apple Maps.
+**Using it.** Sites are ranked by drive + wait + drive back. Tap a site's colored total-time capsule (or a pin's card on the map) to open driving directions in Apple Maps. Each row shows the three legs, how stale the county's wait estimate is (live), and a red note if the site would be closed by the time you arrive. Today's county-wide hours are in the status line at the bottom.
+
+- **iOS:** controls live in a glass card at the bottom: starting address, location button, an **Avoid tolls** switch, and the status line. Pull down the list to refresh.
+- **macOS:** address at the top, **Avoid Tolls** and **Refresh** (⌘R) in the toolbar, status line at the bottom.
+
+Wait times refresh every 5 minutes on their own. Drive times are cached for 10 minutes per starting point and toll setting; changing either recomputes them.
 
 If Xcode picks up an old Swift toolchain (build log shows `/Library/Developer/Toolchains/...`), switch it back with **Xcode › Toolchains › Xcode**.
 
@@ -40,7 +45,7 @@ WAKEVOTE_FIXTURE=saved.json wakevote-cli ...    # parse a saved Airtable respons
 | Folder | Contents |
 |---|---|
 | `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking |
-| `App/` | SwiftUI app (`PlannerModel` owns the refresh loop; views for list and map) and the asset catalog with the app icon |
+| `App/` | SwiftUI app: `PlannerModel` owns the refresh loop and caches; `ContentView` has separate iOS (bottom card) and macOS (toolbar) layouts; `SiteRow`, `PlanListView`, `SiteMapView`; `Glass.swift` applies Liquid Glass on iOS 26+ with a material fallback; asset catalog with the app icon |
 | `CLI/` | `wakevote-cli` entry point |
 | `Support/` | Info.plist, plus `icon/icongen.swift` which draws the app icon (a yellow "Early Voting Site" yard sign with a red arrow) from scratch |
 
@@ -52,6 +57,16 @@ To regenerate the icon after editing the generator:
 cd Support/icon
 swiftc -O icongen.swift -o /tmp/icongen && /tmp/icongen ../../App/Assets.xcassets/AppIcon.appiconset
 ```
+
+## Working on it with Claude Code
+
+Xcode ships an MCP server that lets an agent build, run and read issues through Xcode itself. Enable it in **Xcode › Settings › Intelligence › Model Context Protocol**, then register it from this directory:
+
+```sh
+claude mcp add --transport stdio --scope project xcode -- xcrun mcpbridge
+```
+
+`CLAUDE.md` in this folder records the design decisions and build gotchas for future sessions.
 
 ## Caveats
 
