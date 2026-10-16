@@ -63,20 +63,6 @@ struct SiteRow: View {
         }
         .padding(.vertical, 4)
         .opacity(plan.isViable ? 1 : 0.55)
-        .contextMenu {
-            Button("Open in Maps") { Directions.open(site) }
-        }
-        #if os(iOS)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button {
-                Directions.open(site)
-            } label: {
-                Label("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-            }
-            .tint(.blue)
-            .disabled(site.coordinate == nil)
-        }
-        #endif
     }
 
     private var totalBadge: some View {
