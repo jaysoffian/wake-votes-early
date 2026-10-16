@@ -32,13 +32,12 @@ struct ContentView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             controlCard
-                .padding(.horizontal, 12)
-                .padding(.bottom, 6)
         }
     }
 
+    /// Bottom sheet-style card: content stays above the home indicator, the material runs to the screen edge.
     private var controlCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             originBar
             Toggle(isOn: $model.avoidTolls) {
                 Label("Avoid tolls", systemImage: "road.lanes")
@@ -48,9 +47,16 @@ struct ContentView: View {
             .controlSize(.small)
             footer
         }
-        .padding(14)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: .black.opacity(0.15), radius: 10, y: 3)
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 2)
+        .frame(maxWidth: .infinity)
+        .background {
+            UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20, style: .continuous)
+                .fill(.regularMaterial)
+                .ignoresSafeArea(edges: .bottom)
+                .shadow(color: .black.opacity(0.12), radius: 8, y: -2)
+        }
     }
 
     // MARK: - macOS: controls at the top, toolbar in the title bar
