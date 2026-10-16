@@ -168,12 +168,28 @@ struct ContentView: View {
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
                 Text(error)
             } else if let last = model.lastRefresh {
-                Text("Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
+                Text("\(hoursText) Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
             }
             Spacer(minLength: 0)
         }
         .font(.caption)
         .foregroundStyle(.secondary)
-        .lineLimit(2)
+        .lineLimit(3)
+    }
+
+    /// County-wide hours for today; every site keeps the same schedule.
+    private var hoursText: String {
+        let now = model.now
+        guard let hours = PlannerModel.schedule.hours(on: now) else {
+            return "No early voting today." + nextOpeningText(after: now)
+        }
+        if now >= hours.close { return "Sites closed for the day." + nextOpeningText(after: now) }
+        if now < hours.open { return "Sites open at \(Format.clock(hours.open)) today, until \(Format.clock(hours.close))." }
+        return "Sites open until \(Format.clock(hours.close))."
+    }
+
+    private func nextOpeningText(after date: Date) -> String {
+        guard let next = PlannerModel.schedule.nextOpening(after: date) else { return "" }
+        return " Next: \(next.open.formatted(.dateTime.weekday(.wide).hour().minute()))."
     }
 }

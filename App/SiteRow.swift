@@ -21,59 +21,45 @@ struct SiteRow: View {
                         .fixedSize(horizontal: false, vertical: true)   // wrap as many lines as needed
                         .layoutPriority(1)
                     Spacer(minLength: 0)
-                    totalBadge
+                    directionsBadge
                 }
                 Text(site.address)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 legs
-                HStack(alignment: .bottom, spacing: 8) {
-                    statusLine
-                        .font(.caption)
-                        .fixedSize(horizontal: false, vertical: true)
-                    #if os(iOS)
-                    Spacer(minLength: 0)
-                    Button {
-                        Directions.open(site)
-                    } label: {
-                        Label("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-                            .font(.caption.weight(.semibold))
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .tint(.blue)
-                    .disabled(site.coordinate == nil)
-                    #endif
-                }
+                statusLine
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-
-            #if os(macOS)
-            Button {
-                Directions.open(site)
-            } label: {
-                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
-                    .font(.title3)
-            }
-            .buttonStyle(.borderless)
-            .disabled(site.coordinate == nil)
-            .help("Open driving directions in Maps")
-            .padding(.top, 2)
-            #endif
         }
         .padding(.vertical, 4)
         .opacity(plan.isViable ? 1 : 0.55)
     }
 
-    private var totalBadge: some View {
+    /// The total-time capsule doubles as the "open in Maps" button.
+    private var directionsBadge: some View {
         let color = WaitColor.color(forTotal: plan.total)
-        return Text(plan.total.map(Format.minutes) ?? (plan.waitMinutes == nil ? "no data" : "–"))
-            .font(.callout.weight(.bold).monospacedDigit())
+        return Button {
+            Directions.open(site)
+        } label: {
+            HStack(spacing: 5) {
+                Text(plan.total.map(Format.minutes) ?? (plan.waitMinutes == nil ? "no data" : "–"))
+                    .font(.callout.weight(.bold).monospacedDigit())
+                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                    .font(.caption.weight(.semibold))
+            }
             .padding(.horizontal, 10)
-            .padding(.vertical, 3)
+            .padding(.vertical, 4)
             .background(Capsule().fill(color.opacity(0.15)))
             .foregroundStyle(color)
             .fixedSize()
+        }
+        .buttonStyle(.plain)
+        .disabled(site.coordinate == nil)
+        .help("Open driving directions in Maps")
+        .accessibilityLabel("Directions to \(site.name)")
     }
 
     /// The three chips fit on one line on wide screens and stack on narrow phones.
@@ -102,51 +88,24 @@ struct SiteRow: View {
         }
     }
 
-    @ViewBuilder
-    private var statusLine: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 4) {
-                statusText
-                if let updated = site.waitUpdatedAt {
-                    Text("·")
-                    updatedText(updated)
-                }
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                statusText
-                if let updated = site.waitUpdatedAt {
-                    updatedText(updated)
-                }
-            }
-        }
-        .foregroundStyle(.secondary)
-    }
-
-    @ViewBuilder
-    private var statusText: some View {
+    /// One sentence: anything exceptional about this site, then how stale its wait estimate is.
+    /// Hours are county-wide, so the normal open/closed state lives in the footer instead.
+    private var statusLine: Text {
+        var text = Text("")
         switch plan.status {
-        case .open:
-            if let hours = plan.hours {
-                Text("Open until \(Format.clock(hours.close))")
-            }
-        case .opensLater(let open):
-            Text("Opens at \(Format.clock(open))")
         case .closesBeforeArrival:
             if let hours = plan.hours {
-                Text("Closes at \(Format.clock(hours.close)), before you'd arrive")
-                    .foregroundStyle(.red)
+                text = Text("Closes at \(Format.clock(hours.close)), before you'd arrive. ").foregroundStyle(.red)
             }
-        case .closedForDay:
-            Text("Closed for the day").foregroundStyle(.red)
-        case .noVotingToday:
-            Text("No early voting today").foregroundStyle(.red)
         case .noRoute:
-            Text("Driving time unavailable").foregroundStyle(.orange)
+            text = Text("Driving time unavailable. ").foregroundStyle(.orange)
+        case .open, .opensLater, .closedForDay, .noVotingToday:
+            break
         }
-    }
-
-    /// Live-updating staleness: `Text(_, style: .relative)` re-renders itself as time passes.
-    private func updatedText(_ updated: Date) -> some View {
-        Text("wait updated ") + Text(updated, style: .relative) + Text(" ago")
+        if let updated = site.waitUpdatedAt {
+            // Text(_, style: .relative) re-renders itself as time passes.
+            text = text + Text("Wait updated ") + Text(updated, style: .relative) + Text(" ago.")
+        }
+        return text
     }
 }
