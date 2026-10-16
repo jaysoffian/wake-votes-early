@@ -13,7 +13,7 @@ Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line
 
 **Using it.** Sites are ranked by drive + wait + drive back. Tap a site's colored total-time capsule (or a pin's card on the map) to open driving directions in Apple Maps. Each row shows the three legs, how stale the county's wait estimate is (live), and a red note if the site would be closed by the time you arrive. Today's county-wide hours are in the status line at the bottom.
 
-- **iOS:** controls live in a glass card at the bottom: starting address, location button, an **Avoid tolls** switch, and the status line. Pull down the list to refresh.
+- **iOS:** controls live in a glass card at the bottom: starting address, location button, an **Avoid tolls** switch, and the status line. Pull down the list to refresh. The home-screen label is **Vote Early**, since the full name doesn't fit under an icon.
 - **macOS:** address at the top, **Avoid Tolls** and **Refresh** (⌘R) in the toolbar, status line at the bottom.
 
 Wait times refresh every 5 minutes on their own. Drive times are cached for 10 minutes per starting point and toll setting; changing either recomputes them.
