@@ -21,14 +21,21 @@ struct PlanListView: View {
             }
         } else {
             List {
-                if !model.hasOrigin {
-                    Label("Enter a starting address or tap the location button to get drive times.",
-                          systemImage: "info.circle")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-                ForEach(Array(model.plans.enumerated()), id: \.element.id) { index, plan in
-                    SiteRow(rank: index + 1, plan: plan)
+                Section {
+                    if !model.hasOrigin {
+                        Label("Enter a starting address or tap the location button to get drive times.",
+                              systemImage: "info.circle")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                    ForEach(Array(model.plans.enumerated()), id: \.element.id) { index, plan in
+                        SiteRow(rank: index + 1, plan: plan)
+                    }
+                } header: {
+                    #if os(iOS)
+                    StatusLine(model: model, compact: true)
+                        .textCase(nil)
+                    #endif
                 }
             }
             .listStyle(.inset)

@@ -30,15 +30,17 @@ extension View {
 }
 
 extension View {
-    /// Runs `action` when the scroll view inside starts moving (iOS 18+ / macOS 15+); no-op earlier.
+    /// iOS 26's bottom search pill that shrinks to an icon while scrolling; plain searchable earlier.
     @ViewBuilder
-    func collapseOnScroll(_ action: @escaping () -> Void) -> some View {
-        if #available(iOS 18.0, macOS 15.0, *) {
-            onScrollPhaseChange { _, newPhase in
-                if newPhase == .interacting || newPhase == .decelerating { action() }
-            }
+    func minimizingSearchToolbar() -> some View {
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            searchToolbarBehavior(.minimize)
         } else {
             self
         }
+        #else
+        self
+        #endif
     }
 }
