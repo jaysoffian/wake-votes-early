@@ -12,9 +12,11 @@ public struct VotingSite: Identifiable, Hashable, Sendable {
     public let photoURL: URL?
     public var latitude: Double?
     public var longitude: Double?
+    /// The county's "Site Details" PDF (parking, entrance, accessibility), when known.
+    public var detailsURL: URL?
 
     public init(id: String, name: String, address: String, waitLabel: String?, waitUpdatedAt: Date?,
-                photoURL: URL?, latitude: Double? = nil, longitude: Double? = nil) {
+                photoURL: URL?, latitude: Double? = nil, longitude: Double? = nil, detailsURL: URL? = nil) {
         self.id = id
         self.name = name
         self.address = address
@@ -23,6 +25,7 @@ public struct VotingSite: Identifiable, Hashable, Sendable {
         self.photoURL = photoURL
         self.latitude = latitude
         self.longitude = longitude
+        self.detailsURL = detailsURL
     }
 
     public var coordinate: CLLocationCoordinate2D? {

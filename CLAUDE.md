@@ -38,6 +38,8 @@ records decisions and gotchas that aren't obvious from the code.
   predicts traffic for when the user would actually leave.
 - Site coordinates are baked into `SiteLocations.known` keyed by normalized address (Census geocoder + Google
   pins), with a CLGeocoder fallback cached in UserDefaults.
+- `SiteLocations.detailsPDF` maps the same address keys to the county's per-site "Site Details" PDFs
+  (scraped from the 2026 general election page); update alongside coordinates for a new election.
 - Hours are county-wide and hard-coded in `EarlyVotingSchedule.wake2026General` (Oct 15–31 2026). Update for
   the next election.
 

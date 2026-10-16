@@ -25,6 +25,29 @@ public enum SiteLocations {
         "701 harris rd wake forest nc 27587": (35.99957, -78.51703),
     ]
 
+    /// "Site Details" PDFs linked from the county's 2026 general election page, keyed like `known`.
+    static let detailsBase = "https://s3.us-west-1.amazonaws.com/wakegov.com.if-us-west-1/s3fs-public/documents/2026-09/"
+    static let detailsPDF: [String: String] = [
+        "5900 whittier dr raleigh nc 27609": "OptimistPark_0.pdf",
+        "3808 edwards mill rd raleigh nc 27612": "LaurelHills_1.pdf",
+        "7921 ray rd raleigh nc 27613": "LakeLynn_0.pdf",
+        "4011 carya dr raleigh nc 27610": "WakeCountyCommons.pdf",
+        "4723 advantage way raleigh nc 27603": "WakeTechSouth.pdf",
+        "7005 beech bluff park dr willow spring nc 27592": "BeechBluff.pdf",
+        "9950 durant rd raleigh nc 27614": "AbbottsCreek_1.pdf",
+        "601 w 3rd st wendell nc 27591": "WendellCC.pdf",
+        "301 stinson ave holly springs nc 27540": "WEHunt_2.pdf",
+        "125 avery st garner nc 27529": "AveryStreet.pdf",
+        "102 lawson ridge rd knightdale nc 27545": "KnightdaleRec.pdf",
+        "505 martin luther king jr blvd raleigh nc 27601": "Chavis_0.pdf",
+        "1220 varsity dr raleigh nc 27606": "NCSUBusinessServices.pdf",
+        "101 wilkinson ave cary nc 27513": "HerbertCYoung_1.pdf",
+        "53 hunter st apex nc 27502": "JohnBrown_0.pdf",
+        "120 maury odell pl cary nc 27513": "CarySenior_1.pdf",
+        "4621 shady greens dr fuquay varina nc 27526": "HilltopNeedmore.pdf",
+        "701 harris rd wake forest nc 27587": "JoynerPark_0.pdf",
+    ]
+
     private static let cacheKey = "SiteLocations.geocodeCache"
 
     public static func normalize(_ address: String) -> String {
@@ -40,8 +63,11 @@ public enum SiteLocations {
         let geocoder = CLGeocoder()
 
         for var site in sites {
-            if site.coordinate != nil { result.append(site); continue }
             let key = normalize(site.address)
+            if site.detailsURL == nil, let pdf = detailsPDF[key] {
+                site.detailsURL = URL(string: detailsBase + pdf)
+            }
+            if site.coordinate != nil { result.append(site); continue }
             if let hit = known[key] {
                 site.latitude = hit.0; site.longitude = hit.1
             } else if let hit = cache[key], hit.count == 2 {

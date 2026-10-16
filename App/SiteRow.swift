@@ -23,10 +23,19 @@ struct SiteRow: View {
                     Spacer(minLength: 0)
                     directionsBadge
                 }
-                Text(site.address)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                HStack(spacing: 8) {
+                    Text(site.address)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    if let details = site.detailsURL {
+                        Link(destination: details) {
+                            Label("Site details", systemImage: "doc.text")
+                                .font(.caption)
+                        }
+                        .help("County PDF: parking, entrance and accessibility for this site")
+                    }
+                }
                 legs
                 statusLine
                     .font(.caption)
