@@ -28,19 +28,3 @@ extension View {
         }
     }
 }
-
-extension View {
-    /// iOS 26's bottom search pill that shrinks to an icon while scrolling; plain searchable earlier.
-    @ViewBuilder
-    func minimizingSearchToolbar() -> some View {
-        #if os(iOS)
-        if #available(iOS 26.0, *) {
-            searchToolbarBehavior(.minimize)
-        } else {
-            self
-        }
-        #else
-        self
-        #endif
-    }
-}

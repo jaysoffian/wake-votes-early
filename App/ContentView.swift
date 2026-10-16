@@ -21,62 +21,50 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - iOS: system search field for the address, picker in the nav bar, status as a list header
+    // MARK: - iOS: results on top, controls in a floating card at the bottom
 
-    #if os(iOS)
     private var phoneLayout: some View {
-        NavigationStack {
-            content
-                .softScrollEdges()
-                .overlay(alignment: .top) {
-                    if mode == .map {
-                        StatusLine(model: model, compact: true)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .adaptiveGlass(in: Capsule())
-                            .padding(.horizontal, 16)
-                            .padding(.top, 8)
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        modePicker
-                            .frame(maxWidth: 220)
-                    }
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        if model.isLocating {
-                            ProgressView().controlSize(.small)
-                        } else {
-                            Button {
-                                Task {
-                                    await model.useCurrentLocation()
-                                    addressDraft = model.originAddress
-                                }
-                            } label: {
-                                Label("Use my location", systemImage: "location.fill")
-                            }
-                        }
-                        Menu {
-                            Toggle("Avoid Tolls", isOn: $model.avoidTolls)
-                        } label: {
-                            Label("Options", systemImage: "ellipsis.circle")
-                        }
-                    }
-                }
-                .searchable(text: $addressDraft, prompt: "Starting address")
-                .minimizingSearchToolbar()
-                .onSubmit(of: .search) {
-                    Task { await model.setOrigin(address: addressDraft) }
-                }
-                .textInputAutocapitalization(.words)
-                .autocorrectionDisabled()
+        content
+            .softScrollEdges()
+            .safeAreaInset(edge: .top, spacing: 0) {
+                // Floating glass capsule; the list scrolls underneath it.
+                modePicker
+                    .padding(4)
+                    .adaptiveGlass(in: Capsule())
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                controlCard
+            }
+    }
+
+    /// Bottom sheet-style card: content stays above the home indicator, the glass runs to the screen edge.
+    private var controlCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            originBar
+            Toggle(isOn: $model.avoidTolls) {
+                Label("Avoid tolls", systemImage: "road.lanes")
+                    .font(.subheadline)
+            }
+            .toggleStyle(.switch)
+            .controlSize(.small)
+            footer
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 2)
+        .frame(maxWidth: .infinity)
+        .background {
+            Color.clear
+                .adaptiveGlass(in: UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20, style: .continuous))
+                .ignoresSafeArea(edges: .bottom)
+                .shadow(color: .black.opacity(0.12), radius: 8, y: -2)
         }
     }
-    #endif
 
     // MARK: - macOS: controls at the top, toolbar in the title bar
 
-    #if os(macOS)
     private var macLayout: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -89,7 +77,7 @@ struct ContentView: View {
                 Divider()
                 content
                 Divider()
-                StatusLine(model: model, compact: false)
+                footer
                     .padding(.horizontal)
                     .padding(.vertical, 6)
             }
@@ -112,7 +100,6 @@ struct ContentView: View {
         }
         .frame(minWidth: 560, minHeight: 520)
     }
-    #endif
 
     // MARK: - Shared pieces
 
@@ -160,5 +147,49 @@ struct ContentView: View {
                 .help("Use my current location")
             }
         }
+    }
+
+    private var footer: some View {
+        HStack(spacing: 6) {
+            if model.isComputingTrips {
+                ProgressView().controlSize(.mini)
+                if let p = model.tripProgress, model.throttleWait > 1 {
+                    Text("Computing drive times… \(p.done) of \(p.total). Pausing \(Int(model.throttleWait.rounded(.up)))s for Apple Maps' rate limit.")
+                        .monospacedDigit()
+                } else if let p = model.tripProgress {
+                    Text("Computing drive times… \(p.done) of \(p.total) requests")
+                } else {
+                    Text("Computing drive times…")
+                }
+            } else if model.isRefreshing {
+                ProgressView().controlSize(.mini)
+                Text("Fetching wait times…")
+            } else if let error = model.errorMessage {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                Text(error)
+            } else if let last = model.lastRefresh {
+                Text("\(hoursText) Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
+            }
+            Spacer(minLength: 0)
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .lineLimit(3)
+    }
+
+    /// County-wide hours for today; every site keeps the same schedule.
+    private var hoursText: String {
+        let now = model.now
+        guard let hours = PlannerModel.schedule.hours(on: now) else {
+            return "No early voting today." + nextOpeningText(after: now)
+        }
+        if now >= hours.close { return "Sites closed for the day." + nextOpeningText(after: now) }
+        if now < hours.open { return "Sites open at \(Format.clock(hours.open)) today, until \(Format.clock(hours.close))." }
+        return "Sites open until \(Format.clock(hours.close))."
+    }
+
+    private func nextOpeningText(after date: Date) -> String {
+        guard let next = PlannerModel.schedule.nextOpening(after: date) else { return "" }
+        return " Next: \(next.open.formatted(.dateTime.weekday(.wide).hour().minute()))."
     }
 }
