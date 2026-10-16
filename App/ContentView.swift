@@ -8,36 +8,70 @@ struct ContentView: View {
     @State private var addressDraft = ""
 
     var body: some View {
+        Group {
+            #if os(iOS)
+            phoneLayout
+            #else
+            macLayout
+            #endif
+        }
+        .task {
+            addressDraft = model.originAddress
+            model.start()
+        }
+    }
+
+    // MARK: - iOS: results on top, controls in a floating card at the bottom
+
+    private var phoneLayout: some View {
+        VStack(spacing: 0) {
+            modePicker
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+            content
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            controlCard
+                .padding(.horizontal, 12)
+                .padding(.bottom, 6)
+        }
+    }
+
+    private var controlCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            originBar
+            Toggle(isOn: $model.avoidTolls) {
+                Label("Avoid tolls", systemImage: "road.lanes")
+                    .font(.subheadline)
+            }
+            .toggleStyle(.switch)
+            .controlSize(.small)
+            footer
+        }
+        .padding(14)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .shadow(color: .black.opacity(0.15), radius: 10, y: 3)
+    }
+
+    // MARK: - macOS: controls at the top, toolbar in the title bar
+
+    private var macLayout: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 originBar
                     .padding(.horizontal)
                     .padding(.top, 8)
-                Picker("View", selection: $mode) {
-                    Text("List").tag(Mode.list)
-                    Text("Map").tag(Mode.map)
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .padding(.horizontal)
-                .padding(.vertical, 8)
+                modePicker
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
                 Divider()
-                switch mode {
-                case .list: PlanListView(model: model)
-                case .map: SiteMapView(model: model)
-                }
+                content
                 Divider()
                 footer
                     .padding(.horizontal)
                     .padding(.vertical, 6)
             }
-            #if os(iOS)
-            // No title on the phone: the bar exists only to hold the two buttons.
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarTitleDisplayMode(.inline)
-            #else
-            .navigationTitle("Wake Early Voting")   // window title; costs no space on macOS
-            #endif
+            .navigationTitle("Wake Early Voting")
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Toggle("Avoid Tolls", isOn: $model.avoidTolls)
@@ -54,13 +88,26 @@ struct ContentView: View {
                 }
             }
         }
-        .task {
-            addressDraft = model.originAddress
-            model.start()
-        }
-        #if os(macOS)
         .frame(minWidth: 560, minHeight: 520)
-        #endif
+    }
+
+    // MARK: - Shared pieces
+
+    private var modePicker: some View {
+        Picker("View", selection: $mode) {
+            Text("List").tag(Mode.list)
+            Text("Map").tag(Mode.map)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch mode {
+        case .list: PlanListView(model: model)
+        case .map: SiteMapView(model: model)
+        }
     }
 
     private var originBar: some View {
@@ -113,7 +160,7 @@ struct ContentView: View {
             } else if let last = model.lastRefresh {
                 Text("Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
             }
-            Spacer()
+            Spacer(minLength: 0)
         }
         .font(.caption)
         .foregroundStyle(.secondary)
