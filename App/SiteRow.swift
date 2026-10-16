@@ -145,7 +145,8 @@ struct SiteRow: View {
         }
     }
 
+    /// Live-updating staleness: `Text(_, style: .relative)` re-renders itself as time passes.
     private func updatedText(_ updated: Date) -> some View {
-        Text("wait updated \(updated, format: .relative(presentation: .named))")
+        Text("wait updated ") + Text(updated, style: .relative) + Text(" ago")
     }
 }

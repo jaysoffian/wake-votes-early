@@ -105,7 +105,7 @@ struct ContentView: View {
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
                 Text(error)
             } else if let last = model.lastRefresh {
-                Text("Wait times from Wake County BOE, refreshed \(last, format: .relative(presentation: .named)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
+                Text("Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.avoidTolls ? ", avoiding tolls" : "").")
             }
             Spacer()
         }
