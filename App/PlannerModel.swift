@@ -118,6 +118,9 @@ final class PlannerModel {
             defer { ticker.cancel() }
             let key = Self.cacheKey(origin, avoidTolls: avoidTolls)
             let fresh = (tripCaches[key] ?? [:]).filter { now.timeIntervalSince($0.value.computedAt) < Self.tripTTL }
+            // Show what we already know right away (cached trips, or wait-only ranking); the batch
+            // below can take a while when the rate limiter is pausing.
+            plans = Planner.plans(for: sites, trips: fresh, departing: now, schedule: Self.schedule, hasOrigin: false)
             let batch = await Planner.roundTrips(
                 from: origin, to: sites, departing: now,
                 closingAt: Self.schedule.hours(on: now)?.close,

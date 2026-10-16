@@ -4,15 +4,15 @@ struct PlanListView: View {
     var model: PlannerModel
 
     #if os(iOS)
-    private static let retryHint = "Pull down or tap Refresh to try again."
+    private static let retryHint = "Pull down to try again."
     #else
     private static let retryHint = "Press Refresh (⌘R) to try again."
     #endif
 
     var body: some View {
         if model.plans.isEmpty {
-            if model.isRefreshing {
-                ProgressView("Loading wait times…")
+            if model.isRefreshing || model.isComputingTrips {
+                ProgressView(model.isRefreshing ? "Loading wait times…" : "Computing drive times…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ContentUnavailableView("No sites loaded",
