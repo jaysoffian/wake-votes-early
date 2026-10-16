@@ -18,8 +18,7 @@ struct SiteRow: View {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(site.name)
                         .font(.headline)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)   // wrap, don't ellipsize
+                        .fixedSize(horizontal: false, vertical: true)   // wrap as many lines as needed
                         .layoutPriority(1)
                     Spacer(minLength: 0)
                     totalBadge
