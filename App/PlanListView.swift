@@ -4,7 +4,7 @@ struct PlanListView: View {
     var model: PlannerModel
 
     #if os(iOS)
-    private static let retryHint = "Pull down to try again."
+    private static let retryHint = "Pull down or tap Refresh to try again."
     #else
     private static let retryHint = "Press Refresh (⌘R) to try again."
     #endif
