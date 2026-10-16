@@ -1,4 +1,4 @@
-# Wake Early Voting
+# Wake Votes Early
 
 Picks the fastest Wake County early-voting site for you: **drive there + current estimated wait + drive back**, ranked.
 Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line tool that prints the same ranking.
@@ -47,7 +47,7 @@ WAKEVOTE_FIXTURE=saved.json wakevote-cli ...    # parse a saved Airtable respons
 | `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking |
 | `App/` | SwiftUI app: `PlannerModel` owns the refresh loop and caches; `ContentView` has separate iOS (bottom card) and macOS (toolbar) layouts; `SiteRow`, `PlanListView`, `SiteMapView`; `Glass.swift` applies Liquid Glass on iOS 26+ with a material fallback; asset catalog with the app icon |
 | `CLI/` | `wakevote-cli` entry point |
-| `Support/` | Info.plist, plus `icon/icongen.swift` which draws the app icon (a yellow "Wake Early Voting" yard sign with a red arrow) from scratch |
+| `Support/` | Info.plist, plus `icon/icongen.swift` which draws the app icon (a yellow "Wake Votes Early" yard sign with a red arrow) from scratch |
 
 The Xcode project uses synchronized folders, so new files dropped into `App/`, `Core/`, or `CLI/` are picked up automatically.
 

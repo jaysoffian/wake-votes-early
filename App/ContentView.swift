@@ -81,7 +81,7 @@ struct ContentView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 6)
             }
-            .navigationTitle("Wake Early Voting")
+            .navigationTitle("Wake Votes Early")
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Toggle("Avoid Tolls", isOn: $model.avoidTolls)

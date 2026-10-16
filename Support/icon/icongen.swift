@@ -5,7 +5,7 @@ import ImageIO
 import UniformTypeIdentifiers
 
 // Usage: swiftc -O icongen.swift -o icongen && ./icongen ../../App/Assets.xcassets/AppIcon.appiconset
-// Draws the app icon from scratch: a yellow "WAKE EARLY VOTING" yard sign with a red arrow,
+// Draws the app icon from scratch: a yellow "WAKE VOTES EARLY" yard sign with a red arrow,
 // modeled on the signs Wake County puts out in front of each site.
 let outDir = URL(fileURLWithPath: CommandLine.arguments[1])
 try? FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
@@ -37,7 +37,7 @@ func drawSign(in ctx: CGContext, tile: CGRect) {
     ctx.fill(tile)
 
     let w = tile.width
-    let words = ["WAKE", "EARLY", "VOTING"]
+    let words = ["WAKE", "VOTES", "EARLY"]
     // Pick one font size so the widest word fills ~74% of the tile.
     let probe = words.map { TextLine($0, fontSize: 100) }
     let widest = probe.map(\.bounds.width).max()!
