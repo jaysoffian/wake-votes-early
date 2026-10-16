@@ -42,15 +42,15 @@ WAKEVOTE_FIXTURE=saved.json wakevote-cli ...    # parse a saved Airtable respons
 | `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking |
 | `App/` | SwiftUI app (`PlannerModel` owns the refresh loop; views for list and map) and the asset catalog with the app icon |
 | `CLI/` | `wakevote-cli` entry point |
-| `Support/` | Info.plist, plus `icon/icongen.swift` which renders the app icon from the extracted county site map, recolored to Wake County's brand brown and indigo |
+| `Support/` | Info.plist, plus `icon/icongen.swift` which draws the app icon (a yellow "Early Voting Site" yard sign with a red arrow) from scratch |
 
 The Xcode project uses synchronized folders, so new files dropped into `App/`, `Core/`, or `CLI/` are picked up automatically.
 
-To regenerate the icon after editing the source map:
+To regenerate the icon after editing the generator:
 
 ```sh
 cd Support/icon
-swiftc -O icongen.swift -o /tmp/icongen && /tmp/icongen wake-ev-map-2026-extracted.png ../../App/Assets.xcassets/AppIcon.appiconset
+swiftc -O icongen.swift -o /tmp/icongen && /tmp/icongen ../../App/Assets.xcassets/AppIcon.appiconset
 ```
 
 ## Caveats

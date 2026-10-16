@@ -1,91 +1,90 @@
 import Foundation
-import CoreGraphics
+import AppKit
+import CoreText
 import ImageIO
 import UniformTypeIdentifiers
 
-// Usage: swiftc -O icongen.swift -o icongen && ./icongen wake-ev-map-2026-extracted.png ../../App/Assets.xcassets/AppIcon.appiconset
-// Renders the app icon PNGs from the county's early-voting site map (extracted with a transparent
-// background and contrast boosted by hand from the county's published JPEG).
-let src = URL(fileURLWithPath: CommandLine.arguments[1])
-let outDir = URL(fileURLWithPath: CommandLine.arguments[2])
+// Usage: swiftc -O icongen.swift -o icongen && ./icongen ../../App/Assets.xcassets/AppIcon.appiconset
+// Draws the app icon from scratch: a yellow "EARLY VOTING SITE" yard sign with a red arrow,
+// modeled on the signs Wake County puts out in front of each site.
+let outDir = URL(fileURLWithPath: CommandLine.arguments[1])
 try? FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
 
-guard let source = CGImageSourceCreateWithURL(src as CFURL, nil),
-      let rawMap = CGImageSourceCreateImageAtIndex(source, 0, nil) else { fatalError("cannot load \(src.path)") }
+let signYellow = CGColor(srgbRed: 0xF6/255, green: 0xF0/255, blue: 0x3A/255, alpha: 1)
+let signRed = CGColor(srgbRed: 0xD6/255, green: 0x2A/255, blue: 0x2C/255, alpha: 1)
 
-// Wake County brand colors, from https://www.wake.gov/themes/custom/paladin/images/WCLogoFullColor.svg
-struct RGB { var r: Double, g: Double, b: Double
-    init(_ hex: UInt32) { r = Double((hex >> 16) & 0xff) / 255; g = Double((hex >> 8) & 0xff) / 255; b = Double(hex & 0xff) / 255 }
-    init(r: Double, g: Double, b: Double) { self.r = r; self.g = g; self.b = b }
-    func mixed(with o: RGB, _ t: Double) -> RGB { RGB(r: r + (o.r - r) * t, g: g + (o.g - g) * t, b: b + (o.b - b) * t) }
-    var cgColor: CGColor { CGColor(srgbRed: r, green: g, blue: b, alpha: 1) }
-}
-let brandBrown = RGB(0x9e6c5d)
-let brandIndigo = RGB(0x363168)
-/// Tile background.
-let navy = brandIndigo.cgColor
+/// A line of text laid out with a heavy system font, with glyph-path bounds for exact centering.
+struct TextLine {
+    let line: CTLine
+    let bounds: CGRect   // glyph bounds relative to the baseline origin
 
-/// Three-stop ramp: luminance 0 → dark, 0.5 → mid, 1 → light.
-func ramp(_ l: Double, dark: RGB, mid: RGB, light: RGB) -> RGB {
-    l < 0.5 ? dark.mixed(with: mid, l * 2) : mid.mixed(with: light, (l - 0.5) * 2)
-}
-
-/// Recolors the gray map onto a brown ramp and the blue site markers onto an indigo ramp,
-/// preserving luminance so roads, water and labels keep their detail.
-func tinted(_ image: CGImage) -> CGImage {
-    let w = image.width, h = image.height
-    let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
-                        space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-    ctx.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
-    let px = ctx.data!.bindMemory(to: UInt8.self, capacity: w * h * 4)
-    for p in 0..<(w * h) {
-        let i = p * 4
-        let a = Double(px[i + 3]) / 255
-        guard a > 0 else { continue }
-        // Un-premultiply, then compute luminance and saturation.
-        let r = Double(px[i]) / 255 / a, g = Double(px[i + 1]) / 255 / a, b = Double(px[i + 2]) / 255 / a
-        let l = min(1, 0.2126 * r + 0.7152 * g + 0.0722 * b)
-        let sat = max(r, g, b) - min(r, g, b)
-        let out: RGB
-        if sat > 0.15 {
-            // Site markers: steel blue → indigo, kept a bit lighter than the tile so they stand out.
-            out = ramp(l, dark: RGB(0x241f4a), mid: brandIndigo.mixed(with: RGB(0xffffff), 0.25), light: RGB(0xc7c3e3))
-        } else {
-            out = ramp(l, dark: RGB(0x3a2620), mid: brandBrown, light: RGB(0xf1e4dc))
-        }
-        px[i] = UInt8(max(0, min(255, out.r * a * 255)))
-        px[i + 1] = UInt8(max(0, min(255, out.g * a * 255)))
-        px[i + 2] = UInt8(max(0, min(255, out.b * a * 255)))
+    init(_ text: String, fontSize: CGFloat) {
+        let font = NSFont.systemFont(ofSize: fontSize, weight: .heavy) as CTFont
+        let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: signRed, .kern: fontSize * 0.02]
+        line = CTLineCreateWithAttributedString(NSAttributedString(string: text, attributes: attrs))
+        bounds = CTLineGetBoundsWithOptions(line, [.useGlyphPathBounds])
     }
-    return ctx.makeImage()!
+
+    func draw(in ctx: CGContext, centerX: CGFloat, baselineY: CGFloat) {
+        ctx.textMatrix = .identity
+        ctx.textPosition = CGPoint(x: centerX - bounds.midX, y: baselineY)
+        CTLineDraw(line, ctx)
+    }
 }
 
-/// Bounding box of the opaque pixels, so the map is centered regardless of how it was cropped.
-func opaqueBounds(_ image: CGImage) -> CGRect {
-    let w = image.width, h = image.height
-    let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
-                        space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-    ctx.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
-    let px = ctx.data!.bindMemory(to: UInt8.self, capacity: w * h * 4)
-    var minX = w, minY = h, maxX = -1, maxY = -1
-    for y in 0..<h { for x in 0..<w where px[(y * w + x) * 4 + 3] > 16 {
-        minX = min(minX, x); maxX = max(maxX, x); minY = min(minY, y); maxY = max(maxY, y)
-    } }
-    // CG bitmap rows run top-down; convert to the image's top-left coordinate space for cropping.
-    return CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
-}
+func drawSign(in ctx: CGContext, tile: CGRect) {
+    ctx.setFillColor(signYellow)
+    ctx.fill(tile)
 
-let map = tinted(rawMap)
-let bounds = opaqueBounds(map)
-let side = max(bounds.width, bounds.height)
-let square = CGRect(x: bounds.midX - side / 2, y: bounds.midY - side / 2, width: side, height: side)
+    let w = tile.width
+    let words = ["EARLY", "VOTING", "SITE"]
+    // Pick one font size so the widest word fills ~74% of the tile.
+    let probe = words.map { TextLine($0, fontSize: 100) }
+    let widest = probe.map(\.bounds.width).max()!
+    let fontSize = 100 * (w * 0.74) / widest
+    let lines = words.map { TextLine($0, fontSize: fontSize) }
+    let capHeight = lines[0].bounds.height            // all caps, so every line is the same height
+    let gap = capHeight * 0.26
+
+    // Text block occupies the upper part of the tile; the arrow sits below it.
+    let textTop = tile.maxY - w * 0.085
+    var baseline = textTop - capHeight
+    for line in lines {
+        line.draw(in: ctx, centerX: tile.midX, baselineY: baseline)
+        baseline -= capHeight + gap
+    }
+    let textBottom = baseline + capHeight + gap      // bottom of "SITE"
+
+    // Arrow: shaft plus head, spanning most of the width like the sign's.
+    let arrowTop = textBottom - w * 0.07
+    let arrowBottom = tile.minY + w * 0.10
+    let arrowHeight = arrowTop - arrowBottom
+    let shaftHeight = arrowHeight * 0.52
+    let left = tile.minX + w * 0.09
+    let right = tile.maxX - w * 0.09
+    let headLength = arrowHeight * 0.95
+    let midY = (arrowTop + arrowBottom) / 2
+    let path = CGMutablePath()
+    path.move(to: CGPoint(x: left, y: midY + shaftHeight / 2))
+    path.addLine(to: CGPoint(x: right - headLength, y: midY + shaftHeight / 2))
+    path.addLine(to: CGPoint(x: right - headLength, y: arrowTop))
+    path.addLine(to: CGPoint(x: right, y: midY))
+    path.addLine(to: CGPoint(x: right - headLength, y: arrowBottom))
+    path.addLine(to: CGPoint(x: right - headLength, y: midY - shaftHeight / 2))
+    path.addLine(to: CGPoint(x: left, y: midY - shaftHeight / 2))
+    path.closeSubpath()
+    ctx.setFillColor(signRed)
+    ctx.addPath(path)
+    ctx.fillPath()
+}
 
 func render(size: Int, macStyle: Bool, to url: URL) {
     let space = CGColorSpace(name: CGColorSpace.sRGB)!
     guard let ctx = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0,
                               space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { fatalError() }
     let s = CGFloat(size)
-    ctx.interpolationQuality = .high
+    ctx.setAllowsAntialiasing(true)
+    ctx.setShouldSmoothFonts(true)
     // Apple's macOS icon grid: artwork is 824/1024 of the canvas with a ~185/1024 corner radius.
     let inset: CGFloat = macStyle ? s * 100 / 1024 : 0
     let tile = CGRect(x: inset, y: inset, width: s - 2 * inset, height: s - 2 * inset)
@@ -94,26 +93,15 @@ func render(size: Int, macStyle: Bool, to url: URL) {
     if macStyle {
         ctx.saveGState()
         ctx.setShadow(offset: CGSize(width: 0, height: -s * 0.01), blur: s * 0.02, color: CGColor(gray: 0, alpha: 0.35))
-        ctx.setFillColor(navy)
+        ctx.setFillColor(signYellow)
         ctx.addPath(CGPath(roundedRect: tile, cornerWidth: radius, cornerHeight: radius, transform: nil))
         ctx.fillPath()
         ctx.restoreGState()
     }
-
     ctx.saveGState()
     ctx.addPath(CGPath(roundedRect: tile, cornerWidth: radius, cornerHeight: radius, transform: nil))
     ctx.clip()
-    ctx.setFillColor(navy)
-    ctx.fill(tile)
-    // Small breathing room; iOS applies its own squircle mask on top of the full-bleed square.
-    let shrink: CGFloat = macStyle ? 0.05 : 0.08
-    let artwork = tile.insetBy(dx: tile.width * shrink, dy: tile.height * shrink)
-    // Map the square region of the source onto the artwork rect (CG y axis points up, so flip).
-    let scale = artwork.width / square.width
-    ctx.translateBy(x: artwork.minX - square.minX * scale,
-                    y: artwork.minY + (square.maxY - CGFloat(map.height)) * scale)
-    ctx.scaleBy(x: scale, y: scale)
-    ctx.draw(map, in: CGRect(x: 0, y: 0, width: map.width, height: map.height))
+    drawSign(in: ctx, tile: tile)
     ctx.restoreGState()
 
     guard let image = ctx.makeImage(),
@@ -126,4 +114,4 @@ render(size: 1024, macStyle: false, to: outDir.appendingPathComponent("ios-1024.
 for (pt, scale) in [(16, 1), (16, 2), (32, 1), (32, 2), (128, 1), (128, 2), (256, 1), (256, 2), (512, 1), (512, 2)] {
     render(size: pt * scale, macStyle: true, to: outDir.appendingPathComponent("mac-\(pt)x\(pt)@\(scale)x.png"))
 }
-print("source \(map.width)x\(map.height), opaque bounds \(Int(bounds.minX)),\(Int(bounds.minY)) \(Int(bounds.width))x\(Int(bounds.height)); rendered icons to \(outDir.path)")
+print("rendered icons to \(outDir.path)")
