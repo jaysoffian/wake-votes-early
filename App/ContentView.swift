@@ -6,6 +6,8 @@ struct ContentView: View {
     @Bindable var model: PlannerModel
     @State private var mode: Mode = .list
     @State private var addressDraft = ""
+    @State private var cardExpanded = false
+    @FocusState private var addressFocused: Bool
 
     var body: some View {
         Group {
@@ -17,6 +19,7 @@ struct ContentView: View {
         }
         .task {
             addressDraft = model.originAddress
+            cardExpanded = !model.hasOrigin
             model.start()
         }
     }
@@ -26,6 +29,7 @@ struct ContentView: View {
     private var phoneLayout: some View {
         content
             .softScrollEdges()
+            .collapseOnScroll { collapseCard() }
             .safeAreaInset(edge: .top, spacing: 0) {
                 // Floating glass capsule; the list scrolls underneath it.
                 modePicker
@@ -39,30 +43,55 @@ struct ContentView: View {
             }
     }
 
-    /// Bottom sheet-style card: one input row plus a one-line status; content stays above the home
-    /// indicator and the glass runs to the screen edge.
+    /// Bottom sheet-style card. At rest it is one slim line (address · status); tapping expands it to
+    /// the input row. It collapses on submit, on the chevron, or when the list scrolls.
     private var controlCard: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 8) {
-                originBar
-                Toggle(isOn: $model.avoidTolls) {
-                    Image(systemName: "road.lanes")
+            if cardExpanded {
+                HStack(spacing: 8) {
+                    originBar
+                    Button(action: collapseCard) {
+                        Image(systemName: "chevron.down")
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("Hide controls")
                 }
-                .toggleStyle(.button)
-                .buttonStyle(.bordered)
-                .tint(model.avoidTolls ? .blue : .secondary)
-                .help("Avoid toll roads")
-                .accessibilityLabel("Avoid tolls")
+                Toggle(isOn: $model.avoidTolls) {
+                    Label("Avoid tolls", systemImage: "road.lanes")
+                        .font(.subheadline)
+                }
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                compactStatus
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(model.errorMessage == nil ? 1 : 2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                Button(action: expandCard) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "house")
+                            .foregroundStyle(.secondary)
+                        Text(model.originAddress.isEmpty ? "Set starting address" : model.originAddress)
+                            .lineLimit(1)
+                            .layoutPriority(1)
+                        Text("·").foregroundStyle(.tertiary)
+                        compactStatus
+                            .lineLimit(1)
+                            .foregroundStyle(.secondary)
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.up")
+                            .foregroundStyle(.tertiary)
+                    }
+                    .font(.subheadline)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
-            compactStatus
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(model.errorMessage == nil ? 1 : 2)
-                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 16)
-        .padding(.top, 10)
-        .padding(.bottom, 2)
+        .padding(.top, cardExpanded ? 10 : 9)
+        .padding(.bottom, cardExpanded ? 2 : 6)
         .frame(maxWidth: .infinity)
         .background {
             Color.clear
@@ -70,6 +99,18 @@ struct ContentView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .shadow(color: .black.opacity(0.12), radius: 8, y: -2)
         }
+        .animation(.snappy(duration: 0.25), value: cardExpanded)
+    }
+
+    private func expandCard() {
+        withAnimation(.snappy(duration: 0.25)) { cardExpanded = true }
+        addressFocused = true
+    }
+
+    private func collapseCard() {
+        guard cardExpanded else { return }
+        addressFocused = false
+        withAnimation(.snappy(duration: 0.25)) { cardExpanded = false }
     }
 
     /// Terse status for the phone card.
@@ -151,7 +192,11 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             TextField("Starting address", text: $addressDraft)
                 .textFieldStyle(.roundedBorder)
-                .onSubmit { Task { await model.setOrigin(address: addressDraft) } }
+                .focused($addressFocused)
+                .onSubmit {
+                    collapseCard()
+                    Task { await model.setOrigin(address: addressDraft) }
+                }
                 #if os(iOS)
                 .textInputAutocapitalization(.words)
                 .autocorrectionDisabled()
@@ -162,6 +207,7 @@ struct ContentView: View {
                     .controlSize(.small)
             } else {
                 Button {
+                    collapseCard()
                     Task {
                         await model.useCurrentLocation()
                         addressDraft = model.originAddress

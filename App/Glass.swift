@@ -28,3 +28,17 @@ extension View {
         }
     }
 }
+
+extension View {
+    /// Runs `action` when the scroll view inside starts moving (iOS 18+ / macOS 15+); no-op earlier.
+    @ViewBuilder
+    func collapseOnScroll(_ action: @escaping () -> Void) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            onScrollPhaseChange { _, newPhase in
+                if newPhase == .interacting || newPhase == .decelerating { action() }
+            }
+        } else {
+            self
+        }
+    }
+}
