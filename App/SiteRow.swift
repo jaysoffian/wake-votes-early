@@ -28,7 +28,7 @@ struct SiteRow: View {
                         Text(site.address)
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                            .fixedSize(horizontal: false, vertical: true)   // wrap, don't truncate
                     }
                     Spacer(minLength: 8)
                     VStack(alignment: .trailing, spacing: 4) {
