@@ -168,7 +168,8 @@ struct ContentView: View {
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
                 Text(error)
             } else if let last = model.lastRefresh {
-                Text("\(hoursText) Wait times from Wake County BOE, refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.lastTripFetch.map { " as of \(Format.clock($0))" } ?? "")\(model.avoidTolls ? ", avoiding tolls" : "").")
+                // Markdown link renders as a tappable link in Text and opens in the browser.
+                Text("\(hoursText) Wait times from [Wake County BOE](https://www.wakevotesearly.com), refreshed at \(Format.clock(last)). Drive times from Apple Maps\(model.lastTripFetch.map { " as of \(Format.clock($0))" } ?? "")\(model.avoidTolls ? ", avoiding tolls" : "").")
             }
             Spacer(minLength: 0)
         }
