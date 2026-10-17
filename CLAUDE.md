@@ -74,8 +74,8 @@ that aren't obvious from the code.
 - Show the wait-only ranking immediately after Airtable responds; drive times fill in when the batch finishes.
   Spinners cover only their own step; a new recompute cancels the in-flight one and keeps partial results.
 - App icon is drawn in code (`Support/icon/icongen.swift`): yellow "WAKE VOTES EARLY" yard sign with red
-  arrow. Product name is "Wake Votes Early"; display name is "Wake Votes Early" on macOS and "Vote Early" on iOS (APP_DISPLAY_NAME build setting with per-SDK override, referenced from Info.plist); bundle ID stays org.soffian.WakeVote (changing it
-  would reset location permission and MapKit's per-app throttle state). Regenerate with the command in README.md; output goes to `App/Assets.xcassets/AppIcon.appiconset`.
+  arrow. Product name is "Wake Votes Early"; display name is "Wake Votes Early" on macOS and "Vote Early" on iOS (APP_DISPLAY_NAME build setting with per-SDK override, referenced from Info.plist); bundle ID is org.jaysoffian.wakevotesearly (changing it
+  again would reset location permission and MapKit's per-app throttle state). Regenerate with the command in README.md; output goes to `App/Assets.xcassets/AppIcon.appiconset`.
 - The user's Xcode had a stale Swift 5.7.1 toolchain override (`DVTDefaultToolchainOverrideIdentifer`); if
   builds fail with dependency-scan errors from `/Library/Developer/Toolchains`, that's why.
 
@@ -86,8 +86,8 @@ that aren't obvious from the code.
   jaysoffian.github.io/wake-votes-early/ (support) and .../privacy.html. Contact on both pages is a GitHub
   Issues link, no email, by choice. MIT license. Privacy page is deliberately minimal: intro, Location,
   Third Parties, Contact; Jay trimmed everything Apple doesn't require.
-- Pending: bundle ID will become `org.jaysoffian.wakevotesearly` (lowercase). Jay will say when; changing it
-  re-prompts for location and resets MapKit's per-app throttle window. Until then it stays `org.soffian.WakeVote`.
+- Done: bundle ID is `org.jaysoffian.wakevotesearly` (CLI: `org.jaysoffian.wakevotesearly-cli`). Changed late
+  2026-10-16; location permission and MapKit's throttle window reset once as a result.
 - Pending: App Store screenshots must be the 6.9-inch size (1320×2868, Pro Max simulator); iPhone 13 mini
   captures aren't accepted for the required slot.
 - Jay accepts that an Individual developer account shows his name on the store.
