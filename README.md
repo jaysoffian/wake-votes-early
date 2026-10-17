@@ -75,3 +75,7 @@ claude mcp add --transport stdio --scope project xcode -- xcrun mcpbridge
 - Wait estimates are updated by hand by county staff, typically every 30–60 minutes. The app shows how stale each one is.
 - Only the Triangle Expressway is tolled in Wake County, so **Avoid Tolls** changes little for most starting points.
 - For a future election, update the dates in `Core/Schedule.swift` and add any new sites to `Core/SiteLocations.swift` (or let the geocoder fallback handle them).
+
+## License
+
+MIT. See [LICENSE](LICENSE).
