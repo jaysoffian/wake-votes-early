@@ -22,6 +22,8 @@ records decisions and gotchas that aren't obvious from the code.
   ```
   `-disable-sandbox` is required for SwiftUI/Observation macros. Real builds and simulator runs: the user runs
   them in Xcode, or via the Xcode MCP server (`xcrun mcpbridge`) if configured.
+- Debug builds honor a `WVE_NOW` environment variable (ISO 8601) as the current time, via `Clock.now`, for
+  testing the schedule/ended-screen logic on the simulator or device. Set it in the scheme's Run arguments.
 - The CLI can parse a saved Airtable response offline: `WAKEVOTE_FIXTURE=/path/to.json wakevotesearly-cli`.
 
 ## Data sources and their constraints

@@ -42,7 +42,7 @@ final class PlannerModel {
     var lastRefresh: Date?
     /// When drive times were last actually fetched from MapKit (not served from cache).
     var lastTripFetch: Date?
-    var now = Date()
+    var now = Clock.now
 
     private let waitService = WaitTimeService()
     /// Round trips cached per origin and toll setting, so toggling tolls back and forth is free.
@@ -84,7 +84,7 @@ final class PlannerModel {
     /// without pausing.
     func refresh(userInitiated: Bool = false) async {
         guard !isRefreshing else { return }
-        now = Date()
+        now = Clock.now
         if Self.schedule.hasEnded(at: now) {
             autoRefreshTask?.cancel()
             return   // the UI shows the "early voting ended" screen; nothing to fetch
@@ -93,7 +93,7 @@ final class PlannerModel {
         errorMessage = nil
         do {
             sites = await SiteLocations.resolve(try await waitService.fetchSites())
-            lastRefresh = Date()
+            lastRefresh = Clock.now
         } catch {
             errorMessage = "Wait times unavailable: \(error.localizedDescription)"
         }
@@ -117,7 +117,7 @@ final class PlannerModel {
     }
 
     private func computePlans(forceFreshTrips: Bool) async {
-        now = Date()
+        now = Clock.now
         var trips: [String: RoundTrip] = [:]
         if let origin {
             isComputingTrips = true

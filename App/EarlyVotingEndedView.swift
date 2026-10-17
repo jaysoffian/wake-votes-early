@@ -5,7 +5,7 @@ import SwiftUI
 struct EarlyVotingEndedView: View {
     let endedOn: Date
     var electionDay: EarlyVotingSchedule.Hours?
-    var now: Date = Date()
+    var now: Date = Clock.now
 
     var body: some View {
         VStack(spacing: 16) {
