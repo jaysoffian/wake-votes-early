@@ -11,6 +11,8 @@ Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line
    - **Your iPhone** needs a team: select the WakeVotesEarly target → Signing & Capabilities → choose your Apple ID team. A free Apple ID works; the build expires after 7 days and you re-run from Xcode.
 3. Press Run. Type a starting address and press Return, or tap the location button. The starting point is remembered between launches.
 
+The `WakeVotesEarly` scheme is checked in. To test the app on a different date (for example after early voting has ended), edit the scheme, open Run › Arguments, and enable the `WVE_NOW` environment variable (ISO 8601, debug builds only).
+
 **Using it.** Sites are ranked by drive + wait + drive back. Tap a site's colored total-time capsule to open driving directions in Apple Maps, or the document icon under it for the county's site-details PDF (parking, entrance, accessibility; shown in-app on iOS). Each row shows the three legs, how stale the county's wait estimate is (live), and a red note if the site would be closed by the time you arrive. The map colors pins by the same total and shows the same row when you tap a pin. Today's county-wide hours are in the status line at the bottom; after hours the capsule reads "Closed".
 
 - **iOS:** controls live in a glass card at the bottom: starting address, location button, an **Avoid tolls** switch, and the status line. Pull down the list to refresh. The home-screen label is **Vote Early**, since the full name doesn't fit under an icon.
@@ -38,14 +40,14 @@ WAKEVOTE_FIXTURE=saved.json wakevotesearly-cli ...    # parse a saved Airtable r
 - **Drive times** use Apple MapKit's traffic-aware ETA (`MKDirections.calculateETA`). No API key or account needed. The return leg is requested for the time you would actually leave (now + drive + wait + 15 minutes to vote), so MapKit predicts traffic for then.
 - **Request budget.** MapKit allows about 50 ETA requests per minute per app, keyed by bundle ID and persisting across launches. The app fetches the outbound leg for every site but the exact return leg only for the 8 best candidates; the rest show "≈" and reuse the outbound time. A persisted sliding-window limiter (`Core/RequestThrottle.swift`) keeps the app under 40 requests a minute and queues the rest, and the footer reports when it is pausing. If MapKit throttles anyway, the app honors its reset timer. A new recompute cancels one still in flight and keeps what it already fetched.
 - **Site coordinates** for the 18 general-election sites are baked into `Core/SiteLocations.swift`, keyed by address, with a CLGeocoder fallback for any site the county adds or renames. The same table carries each site's county **Site Details** PDF (parking, entrance, accessibility), linked from every row.
-- **Hours** are in `Core/Schedule.swift` (Oct 15–31 2026; weekdays 8:00–7:30, Sat 8:00–3:00, Sun 1:00–6:00). Sites that will be closed by the time you arrive are grayed out and sorted to the bottom.
+- **Hours** are in `Core/Schedule.swift` (Oct 15–31 2026; weekdays 8:00–7:30, Sat 8:00–3:00, Sun 1:00–6:00; Election Day Nov 3, 6:30–7:30). Sites that will be closed by the time you arrive are grayed out and sorted to the bottom.
 
 ## Layout
 
 | Folder | Contents |
 |---|---|
-| `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking |
-| `App/` | SwiftUI app: `PlannerModel` owns the refresh loop and caches; `ContentView` has separate iOS (bottom card) and macOS (toolbar) layouts; `SiteRow`, `PlanListView`, `SiteMapView`; `Glass.swift` applies Liquid Glass on iOS 26+ with a material fallback; `SafariView.swift` shows the county PDFs in-app on iOS; asset catalog with the app icon |
+| `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking, and `Clock` (the `WVE_NOW` override) |
+| `App/` | SwiftUI app: `PlannerModel` owns the refresh loop and caches; `ContentView` has separate iOS (bottom card) and macOS (toolbar) layouts; `SiteRow`, `PlanListView`, `SiteMapView`; `Glass.swift` applies Liquid Glass on iOS 26+ with a material fallback; `SafariView.swift` shows the county PDFs in-app on iOS; `EarlyVotingEndedView` replaces everything once the period is over; asset catalog with the app icon |
 | `CLI/` | `wakevotesearly-cli` entry point |
 | `docs/` | Support and privacy-policy pages for the App Store listing, served by GitHub Pages at `jaysoffian.github.io/wake-votes-early/`; contact is via GitHub Issues |
 | `Support/` | Info.plist, plus `icon/icongen.swift` which draws the app icon (a yellow "Wake Votes Early" yard sign with a red arrow) from scratch |
@@ -74,7 +76,7 @@ claude mcp add --transport stdio --scope project xcode -- xcrun mcpbridge
 - The Airtable endpoint is unofficial. The signed URL currently embedded in the share page expires 2026-11-05; the app re-reads the share page on every refresh, so it follows whatever the county publishes until Airtable changes the page format.
 - Wait estimates are updated by hand by county staff, typically every 30–60 minutes. The app shows how stale each one is.
 - Only the Triangle Expressway is tolled in Wake County, so **Avoid Tolls** changes little for most starting points.
-- After the last day of early voting the app shows only an "Early voting ended" screen with a link to the Board of Elections, and stops fetching.
+- After early voting closes on the last day, the app shows only an "Early voting ended" screen with Election Day's date and hours and a link to the Board of Elections, and stops fetching.
 - For a future election, update the dates in `Core/Schedule.swift` and add any new sites to `Core/SiteLocations.swift` (or let the geocoder fallback handle them).
 
 ## License

@@ -23,8 +23,10 @@ records decisions and gotchas that aren't obvious from the code.
   `-disable-sandbox` is required for SwiftUI/Observation macros. Real builds and simulator runs: the user runs
   them in Xcode, or via the Xcode MCP server (`xcrun mcpbridge`) if configured.
 - Debug builds honor a `WVE_NOW` environment variable (ISO 8601) as the current time, via `Clock.now`, for
-  testing the schedule/ended-screen logic on the simulator or device. Set it in the scheme's Run arguments.
-- The CLI can parse a saved Airtable response offline: `WAKEVOTE_FIXTURE=/path/to.json wakevotesearly-cli`.
+  testing the schedule/ended-screen logic. The shared scheme (`xcshareddata/xcschemes/WakeVotesEarly.xcscheme`)
+  already defines it, disabled, with a post-period value.
+- The CLI (`wakevotesearly-cli`) is a test harness for me; Jay doesn't care about it. Keep it compiling, don't
+  mention it in updates, and don't spend his attention on it. Fixture mode: `WAKEVOTE_FIXTURE=/path/to.json`.
 
 ## Data sources and their constraints
 
@@ -43,8 +45,11 @@ records decisions and gotchas that aren't obvious from the code.
 - `SiteLocations.detailsPDF` maps the same address keys to the county's per-site "Site Details" PDFs
   (scraped from the 2026 general election page); update alongside coordinates for a new election.
 - Hours are county-wide and hard-coded in `EarlyVotingSchedule.wake2026General` (Oct 15–31 2026; Election Day
-  Nov 3 6:30–19:30 is stored too, for the ended screen only). Update for the next election. Once `schedule.hasEnded(at:)` is true the app shows `EarlyVotingEndedView` and stops
-  refreshing; the CLI prints a one-line notice and exits.
+  Nov 3 6:30–19:30 is stored too, for the ended screen only). Update for the next election.
+- Once `schedule.hasEnded(at:)` is true the app shows `EarlyVotingEndedView` (text + link only, no icon) and
+  stops refreshing. Its wording is Jay's; it states only the end time, Election Day date/hours, and a link.
+  He removed a sentence claiming Election Day voting must be at an assigned precinct because he couldn't
+  vouch for it: don't put claims in user-facing text that we haven't verified.
 
 ## UX decisions the user has made (don't relitigate)
 
@@ -69,15 +74,17 @@ records decisions and gotchas that aren't obvious from the code.
 - The user's Xcode had a stale Swift 5.7.1 toolchain override (`DVTDefaultToolchainOverrideIdentifer`); if
   builds fail with dependency-scan errors from `/Library/Developer/Toolchains`, that's why.
 
-## App Store plans (decided 2026-10-16, not yet done)
+## App Store plans (as of 2026-10-16)
 
-- Bundle ID will become `org.jaysoffian.wakevotesearly` (lowercase). Jay will say when; changing it re-prompts
-  for location and resets MapKit's per-app throttle window. Until then it stays `org.soffian.WakeVote`.
-- Support and privacy pages live in `docs/` and will be published at jaysoffian.github.io (not jaysoffian.org).
-  Contact on both pages is a GitHub Issues link (no email, by choice) pointing at
-  github.com/jaysoffian/wake-votes-early. The GitHub repo is named `wake-votes-early`; the local folder
-  stays `wake-early-voting` (renaming it would break Claude Code's per-project memory). Pages URLs will be
-  jaysoffian.github.io/wake-votes-early/ and .../privacy.html.
+- Done: repo pushed to github.com/jaysoffian/wake-votes-early (local folder stays `wake-early-voting`;
+  renaming it would break Claude Code's per-project memory). GitHub Pages serves `docs/` at
+  jaysoffian.github.io/wake-votes-early/ (support) and .../privacy.html. Contact on both pages is a GitHub
+  Issues link, no email, by choice. MIT license. Privacy page is deliberately minimal: intro, Location,
+  Third Parties, Contact; Jay trimmed everything Apple doesn't require.
+- Pending: bundle ID will become `org.jaysoffian.wakevotesearly` (lowercase). Jay will say when; changing it
+  re-prompts for location and resets MapKit's per-app throttle window. Until then it stays `org.soffian.WakeVote`.
+- Pending: App Store screenshots must be the 6.9-inch size (1320×2868, Pro Max simulator); iPhone 13 mini
+  captures aren't accepted for the required slot.
 - Jay accepts that an Individual developer account shows his name on the store.
 
 ## Rejected iOS layout experiments (2026-10-16; don't propose again)
