@@ -74,6 +74,7 @@ claude mcp add --transport stdio --scope project xcode -- xcrun mcpbridge
 - The Airtable endpoint is unofficial. The signed URL currently embedded in the share page expires 2026-11-05; the app re-reads the share page on every refresh, so it follows whatever the county publishes until Airtable changes the page format.
 - Wait estimates are updated by hand by county staff, typically every 30–60 minutes. The app shows how stale each one is.
 - Only the Triangle Expressway is tolled in Wake County, so **Avoid Tolls** changes little for most starting points.
+- After the last day of early voting the app shows only an "Early voting ended" screen with a link to the Board of Elections, and stops fetching.
 - For a future election, update the dates in `Core/Schedule.swift` and add any new sites to `Core/SiteLocations.swift` (or let the geocoder fallback handle them).
 
 ## License

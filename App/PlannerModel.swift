@@ -84,6 +84,11 @@ final class PlannerModel {
     /// without pausing.
     func refresh(userInitiated: Bool = false) async {
         guard !isRefreshing else { return }
+        now = Date()
+        if Self.schedule.hasEnded(at: now) {
+            autoRefreshTask?.cancel()
+            return   // the UI shows the "early voting ended" screen; nothing to fetch
+        }
         isRefreshing = true
         errorMessage = nil
         do {

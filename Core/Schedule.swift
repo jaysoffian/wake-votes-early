@@ -48,6 +48,16 @@ public struct EarlyVotingSchedule: Sendable {
         return Hours(open: open, close: close)
     }
 
+    /// Closing time on the final day of the period.
+    public var periodEnd: Date? {
+        calendar.date(from: lastDay).flatMap { hours(on: $0)?.close }
+    }
+
+    /// True once the whole early-voting period is over.
+    public func hasEnded(at date: Date) -> Bool {
+        periodEnd.map { date >= $0 } ?? false
+    }
+
     /// The next day with early voting at or after `date`, if any.
     public func nextOpening(after date: Date) -> Hours? {
         let cal = calendar

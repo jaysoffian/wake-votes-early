@@ -61,6 +61,10 @@ func run() async {
             } catch { print("Geocode failed: \(error.localizedDescription)"); exit(2) }
         }
     }
+    if EarlyVotingSchedule.wake2026General.hasEnded(at: Date()) {
+        print("Early voting ended on \(EarlyVotingSchedule.wake2026General.periodEnd!.formatted(date: .long, time: .omitted)). See https://www.wake.gov/departments-government/board-elections")
+        exit(0)
+    }
     print("Origin: \(originLabel) (\(origin.latitude), \(origin.longitude))\(avoidTolls ? ", avoiding tolls" : "")")
 
     let t0 = Date()

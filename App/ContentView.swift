@@ -9,11 +9,15 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            #if os(iOS)
-            phoneLayout
-            #else
-            macLayout
-            #endif
+            if PlannerModel.schedule.hasEnded(at: model.now) {
+                EarlyVotingEndedView(endedOn: PlannerModel.schedule.periodEnd ?? model.now)
+            } else {
+                #if os(iOS)
+                phoneLayout
+                #else
+                macLayout
+                #endif
+            }
         }
         .task {
             addressDraft = model.originAddress
