@@ -8,6 +8,8 @@ records decisions and gotchas that aren't obvious from the code.
 
 - `WakeVotesEarly.xcodeproj/project.pbxproj` is hand-written (objectVersion 77, synchronized folders `App/`, `Core/`,
   `CLI/`). New source files are picked up automatically; don't add PBXFileReference entries.
+- iPhone-only (`TARGETED_DEVICE_FAMILY = 1`) and portrait-only, by decision: no iPad screenshots or
+  orientation handling to maintain. The macOS destination is unaffected.
 - Swift 5 language mode on purpose. Don't flip to Swift 6 / strict concurrency without being asked.
 - macOS target is ad-hoc signed (`CODE_SIGN_IDENTITY[sdk=macosx*] = -`) so it runs with no team; iOS needs the
   user's team selected in Xcode.

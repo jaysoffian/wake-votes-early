@@ -1,7 +1,7 @@
 # Wake Votes Early
 
 Picks the fastest Wake County early-voting site for you: **drive there + current estimated wait + drive back**, ranked.
-Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line tool (`wakevotesearly-cli`) that prints the same ranking.
+Native SwiftUI app for macOS and iPhone (portrait only; no iPad) from one Xcode project, plus a command-line tool (`wakevotesearly-cli`) that prints the same ranking.
 
 ## Run it
 
