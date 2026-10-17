@@ -16,7 +16,7 @@ struct EarlyVotingEndedView: View {
                 .font(.title3.weight(.semibold))
                 .multilineTextAlignment(.center)
             if let electionDay, now < electionDay.close {
-                Text("Election Day is \(electionDay.open.formatted(.dateTime.weekday(.wide).month(.wide).day().year())), \(Format.clock(electionDay.open)) – \(Format.clock(electionDay.close)). On Election Day you must vote at your assigned polling place, which this app can't help you find.")
+                Text("Election Day is \(electionDay.open.formatted(.dateTime.weekday(.wide).month(.wide).day().year())), \(Format.clock(electionDay.open)) – \(Format.clock(electionDay.close)). Visit the Wake County Board of Elections site for more information.")
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
             }
