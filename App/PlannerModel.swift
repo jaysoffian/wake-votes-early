@@ -233,7 +233,16 @@ final class PlannerModel {
     private static func fixtureSites() throws -> [VotingSite]? {
         #if DEBUG
         guard let path = ProcessInfo.processInfo.environment["WVE_FIXTURE"], !path.isEmpty else { return nil }
-        return try WaitTimeService.parse(Data(contentsOf: URL(fileURLWithPath: path)))
+        let sites = try WaitTimeService.parse(Data(contentsOf: URL(fileURLWithPath: path)))
+        // The "wait updated N ago" text compares against the real clock, so shift the saved
+        // timestamps forward: newest one lands 2 minutes ago, the spread between sites is kept.
+        guard let newest = sites.compactMap(\.waitUpdatedAt).max() else { return sites }
+        let shift = Date().addingTimeInterval(-120).timeIntervalSince(newest)
+        return sites.map { site in
+            VotingSite(id: site.id, name: site.name, address: site.address, waitLabel: site.waitLabel,
+                       waitUpdatedAt: site.waitUpdatedAt?.addingTimeInterval(shift), photoURL: site.photoURL,
+                       latitude: site.latitude, longitude: site.longitude, detailsURL: site.detailsURL)
+        }
         #else
         return nil
         #endif

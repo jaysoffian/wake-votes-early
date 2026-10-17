@@ -23,7 +23,7 @@ Typical uses:
 - **The "early voting ended" screen:** enable `WVE_NOW` with a value after `2026-10-31T15:00:00-04:00`, for example `2026-11-01T10:00:00-04:00`. A value after Election Day (`2026-11-04T10:00:00-05:00`) hides the Election Day line.
 - **A closed day:** `2026-10-18T20:00:00-04:00` (Sunday evening) shows the closed state and the next opening.
 
-The fixture's "wait updated" timestamps are fixed at the afternoon of October 16, so rows read as hours old under a different `WVE_NOW`.
+The fixture's "wait updated" timestamps are shifted on load so the newest reads "2 min ago" against the real clock, with the original spread between sites preserved. Note that `xcrun simctl status_bar … --time` only repaints the status-bar clock; it does not change the time the app sees.
 
 ## Simulator location
 
