@@ -71,7 +71,8 @@ records decisions and gotchas that aren't obvious from the code.
 - Bundle ID will become `org.jaysoffian.wakevotesearly` (lowercase). Jay will say when; changing it re-prompts
   for location and resets MapKit's per-app throttle window. Until then it stays `org.soffian.WakeVote`.
 - Support and privacy pages live in `docs/` and will be published at jaysoffian.github.io (not jaysoffian.org).
-  `SUPPORT-EMAIL` placeholders in both pages still need a real address.
+  Contact on both pages is a GitHub Issues link (no email, by choice); it assumes the repo is
+  github.com/jaysoffian/wake-early-voting. Fix the URL if the repo is named differently.
 - Jay accepts that an Individual developer account shows his name on the store.
 
 ## Rejected iOS layout experiments (2026-10-16; don't propose again)
