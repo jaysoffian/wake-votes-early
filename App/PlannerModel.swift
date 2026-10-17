@@ -92,7 +92,13 @@ final class PlannerModel {
         isRefreshing = true
         errorMessage = nil
         do {
-            sites = await SiteLocations.resolve(try await Self.fixtureSites() ?? waitService.fetchSites())
+            let fetched: [VotingSite]
+            if let fixture = try Self.fixtureSites() {
+                fetched = fixture
+            } else {
+                fetched = try await waitService.fetchSites()
+            }
+            sites = await SiteLocations.resolve(fetched)
             lastRefresh = Clock.now
         } catch {
             errorMessage = "Wait times unavailable: \(error.localizedDescription)"
