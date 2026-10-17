@@ -8,7 +8,7 @@
 
 /* Begin PBXFileReference section */
 		AA00000000000000000000A0 /* Wake Votes Early.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Wake Votes Early.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA00000000000000000000A1 /* wakevote-cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "wakevote-cli"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000000000000A1 /* wakevotesearly-cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "wakevotesearly-cli"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000000000000A2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,7 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				AA00000000000000000000A0 /* Wake Votes Early.app */,
-				AA00000000000000000000A1 /* wakevote-cli */,
+				AA00000000000000000000A1 /* wakevotesearly-cli */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,9 +79,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AA00000000000000000000C0 /* WakeVote */ = {
+		AA00000000000000000000C0 /* WakeVotesEarly */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA00000000000000000000D3 /* Build configuration list for PBXNativeTarget "WakeVote" */;
+			buildConfigurationList = AA00000000000000000000D3 /* Build configuration list for PBXNativeTarget "WakeVotesEarly" */;
 			buildPhases = (
 				AA00000000000000000000B0 /* Sources */,
 				AA00000000000000000000B1 /* Frameworks */,
@@ -95,16 +95,16 @@
 				AA000000000000000000000A /* App */,
 				AA000000000000000000000B /* Core */,
 			);
-			name = WakeVote;
+			name = WakeVotesEarly;
 			packageProductDependencies = (
 			);
-			productName = WakeVote;
+			productName = WakeVotesEarly;
 			productReference = AA00000000000000000000A0 /* Wake Votes Early.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AA00000000000000000000C1 /* wakevote-cli */ = {
+		AA00000000000000000000C1 /* wakevotesearly-cli */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA00000000000000000000D6 /* Build configuration list for PBXNativeTarget "wakevote-cli" */;
+			buildConfigurationList = AA00000000000000000000D6 /* Build configuration list for PBXNativeTarget "wakevotesearly-cli" */;
 			buildPhases = (
 				AA00000000000000000000B3 /* Sources */,
 				AA00000000000000000000B4 /* Frameworks */,
@@ -117,11 +117,11 @@
 				AA000000000000000000000B /* Core */,
 				AA000000000000000000000C /* CLI */,
 			);
-			name = "wakevote-cli";
+			name = "wakevotesearly-cli";
 			packageProductDependencies = (
 			);
-			productName = "wakevote-cli";
-			productReference = AA00000000000000000000A1 /* wakevote-cli */;
+			productName = "wakevotesearly-cli";
+			productReference = AA00000000000000000000A1 /* wakevotesearly-cli */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -142,7 +142,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AA00000000000000000000D0 /* Build configuration list for PBXProject "WakeVote" */;
+			buildConfigurationList = AA00000000000000000000D0 /* Build configuration list for PBXProject "WakeVotesEarly" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -156,8 +156,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA00000000000000000000C0 /* WakeVote */,
-				AA00000000000000000000C1 /* wakevote-cli */,
+				AA00000000000000000000C0 /* WakeVotesEarly */,
+				AA00000000000000000000C1 /* wakevotesearly-cli */,
 			);
 		};
 /* End PBXProject section */
@@ -415,7 +415,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AA00000000000000000000D0 /* Build configuration list for PBXProject "WakeVote" */ = {
+		AA00000000000000000000D0 /* Build configuration list for PBXProject "WakeVotesEarly" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA00000000000000000000D1 /* Debug */,
@@ -424,7 +424,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA00000000000000000000D3 /* Build configuration list for PBXNativeTarget "WakeVote" */ = {
+		AA00000000000000000000D3 /* Build configuration list for PBXNativeTarget "WakeVotesEarly" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA00000000000000000000D4 /* Debug */,
@@ -433,7 +433,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA00000000000000000000D6 /* Build configuration list for PBXNativeTarget "wakevote-cli" */ = {
+		AA00000000000000000000D6 /* Build configuration list for PBXNativeTarget "wakevotesearly-cli" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA00000000000000000000D7 /* Debug */,

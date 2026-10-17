@@ -1,7 +1,7 @@
 import Foundation
 import CoreLocation
 
-// Usage: wakevote-cli [--no-tolls] [lat,lon | "street address"]
+// Usage: wakevotesearly-cli [--no-tolls] [lat,lon | "street address"]
 // Prints every early-voting site ranked by drive + wait + drive back.
 
 func minutes(_ t: TimeInterval?) -> String {

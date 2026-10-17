@@ -1,14 +1,14 @@
 # Wake Votes Early
 
 Picks the fastest Wake County early-voting site for you: **drive there + current estimated wait + drive back**, ranked.
-Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line tool that prints the same ranking.
+Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line tool (`wakevotesearly-cli`) that prints the same ranking.
 
 ## Run it
 
-1. Open `WakeVote.xcodeproj` in Xcode 16 or newer.
-2. Pick the **WakeVote** scheme and a destination:
+1. Open `WakeVotesEarly.xcodeproj` in Xcode 16 or newer.
+2. Pick the **WakeVotesEarly** scheme and a destination:
    - **My Mac** runs immediately; the macOS build is ad-hoc signed, so no team is needed.
-   - **Your iPhone** needs a team: select the WakeVote target → Signing & Capabilities → choose your Apple ID team. A free Apple ID works; the build expires after 7 days and you re-run from Xcode.
+   - **Your iPhone** needs a team: select the WakeVotesEarly target → Signing & Capabilities → choose your Apple ID team. A free Apple ID works; the build expires after 7 days and you re-run from Xcode.
 3. Press Run. Type a starting address and press Return, or tap the location button. The starting point is remembered between launches.
 
 **Using it.** Sites are ranked by drive + wait + drive back. Tap a site's colored total-time capsule to open driving directions in Apple Maps, or the document icon under it for the county's site-details PDF (parking, entrance, accessibility; shown in-app on iOS). Each row shows the three legs, how stale the county's wait estimate is (live), and a red note if the site would be closed by the time you arrive. The map colors pins by the same total and shows the same row when you tap a pin. Today's county-wide hours are in the status line at the bottom; after hours the capsule reads "Closed".
@@ -25,11 +25,11 @@ If Xcode picks up an old Swift toolchain (build log shows `/Library/Developer/To
 Same ranking, handy for testing:
 
 ```sh
-xcodebuild -project WakeVote.xcodeproj -scheme wakevote-cli -configuration Release build
+xcodebuild -project WakeVotesEarly.xcodeproj -scheme wakevotesearly-cli -configuration Release build
 # then, from the build products folder:
-wakevote-cli "123 Main St, Raleigh"             # or "35.78,-78.64"; omit for downtown Raleigh
-wakevote-cli --no-tolls "123 Main St, Raleigh"
-WAKEVOTE_FIXTURE=saved.json wakevote-cli ...    # parse a saved Airtable response instead of fetching
+wakevotesearly-cli "123 Main St, Raleigh"      # or "35.78,-78.64"; omit for downtown Raleigh
+wakevotesearly-cli --no-tolls "123 Main St, Raleigh"
+WAKEVOTE_FIXTURE=saved.json wakevotesearly-cli ...    # parse a saved Airtable response instead of fetching
 ```
 
 ## How it works
@@ -46,7 +46,7 @@ WAKEVOTE_FIXTURE=saved.json wakevote-cli ...    # parse a saved Airtable respons
 |---|---|
 | `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking |
 | `App/` | SwiftUI app: `PlannerModel` owns the refresh loop and caches; `ContentView` has separate iOS (bottom card) and macOS (toolbar) layouts; `SiteRow`, `PlanListView`, `SiteMapView`; `Glass.swift` applies Liquid Glass on iOS 26+ with a material fallback; `SafariView.swift` shows the county PDFs in-app on iOS; asset catalog with the app icon |
-| `CLI/` | `wakevote-cli` entry point |
+| `CLI/` | `wakevotesearly-cli` entry point |
 | `docs/` | Support and privacy-policy pages for the App Store listing, served by GitHub Pages at `jaysoffian.github.io/wake-votes-early/`; contact is via GitHub Issues |
 | `Support/` | Info.plist, plus `icon/icongen.swift` which draws the app icon (a yellow "Wake Votes Early" yard sign with a red arrow) from scratch |
 

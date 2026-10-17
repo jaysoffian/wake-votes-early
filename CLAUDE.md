@@ -1,12 +1,12 @@
 # Wake Votes Early: notes for Claude Code sessions
 
-Native SwiftUI app (macOS 14+ / iOS 17+, one multiplatform target) plus `wakevote-cli`, ranking Wake County
+Native SwiftUI app (macOS 14+ / iOS 17+, one multiplatform target) plus `wakevotesearly-cli`, ranking Wake County
 early-voting sites by drive there + published wait + drive back. README.md explains the product; this file
 records decisions and gotchas that aren't obvious from the code.
 
 ## Build and verify
 
-- `WakeVote.xcodeproj/project.pbxproj` is hand-written (objectVersion 77, synchronized folders `App/`, `Core/`,
+- `WakeVotesEarly.xcodeproj/project.pbxproj` is hand-written (objectVersion 77, synchronized folders `App/`, `Core/`,
   `CLI/`). New source files are picked up automatically; don't add PBXFileReference entries.
 - Swift 5 language mode on purpose. Don't flip to Swift 6 / strict concurrency without being asked.
 - macOS target is ad-hoc signed (`CODE_SIGN_IDENTITY[sdk=macosx*] = -`) so it runs with no team; iOS needs the
@@ -22,7 +22,7 @@ records decisions and gotchas that aren't obvious from the code.
   ```
   `-disable-sandbox` is required for SwiftUI/Observation macros. Real builds and simulator runs: the user runs
   them in Xcode, or via the Xcode MCP server (`xcrun mcpbridge`) if configured.
-- The CLI can parse a saved Airtable response offline: `WAKEVOTE_FIXTURE=/path/to.json wakevote-cli`.
+- The CLI can parse a saved Airtable response offline: `WAKEVOTE_FIXTURE=/path/to.json wakevotesearly-cli`.
 
 ## Data sources and their constraints
 
