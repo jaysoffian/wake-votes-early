@@ -66,6 +66,14 @@ records decisions and gotchas that aren't obvious from the code.
 - The user's Xcode had a stale Swift 5.7.1 toolchain override (`DVTDefaultToolchainOverrideIdentifer`); if
   builds fail with dependency-scan errors from `/Library/Developer/Toolchains`, that's why.
 
+## App Store plans (decided 2026-10-16, not yet done)
+
+- Bundle ID will become `org.jaysoffian.wakevotesearly` (lowercase). Jay will say when; changing it re-prompts
+  for location and resets MapKit's per-app throttle window. Until then it stays `org.soffian.WakeVote`.
+- Support and privacy pages live in `docs/` and will be published at jaysoffian.github.io (not jaysoffian.org).
+  `SUPPORT-EMAIL` placeholders in both pages still need a real address.
+- Jay accepts that an Individual developer account shows his name on the store.
+
 ## Rejected iOS layout experiments (2026-10-16; don't propose again)
 
 The user wanted the bottom card to take less space, but rejected each of these in turn. The current layout
