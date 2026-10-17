@@ -4,18 +4,22 @@ import SwiftUI
 /// presents stale wait times as if they meant something.
 struct EarlyVotingEndedView: View {
     let endedOn: Date
+    var electionDay: EarlyVotingSchedule.Hours?
+    var now: Date = Date()
 
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.seal")
                 .font(.system(size: 44))
                 .foregroundStyle(.secondary)
-            Text("Early voting ended on \(endedOn.formatted(.dateTime.month(.wide).day().year())).")
+            Text("Early voting ended \(endedOn.formatted(.dateTime.month(.wide).day().year())) at \(Format.clock(endedOn)).")
                 .font(.title3.weight(.semibold))
                 .multilineTextAlignment(.center)
-            Text("You can still vote on Election Day at your assigned precinct.")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+            if let electionDay, now < electionDay.close {
+                Text("Election Day is \(electionDay.open.formatted(.dateTime.weekday(.wide).month(.wide).day().year())), \(Format.clock(electionDay.open)) – \(Format.clock(electionDay.close)). On Election Day you must vote at your assigned polling place, which this app can't help you find.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+            }
             Link("Wake County Board of Elections",
                  destination: URL(string: "https://www.wake.gov/departments-government/board-elections")!)
                 .padding(.top, 4)

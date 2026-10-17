@@ -62,7 +62,12 @@ func run() async {
         }
     }
     if EarlyVotingSchedule.wake2026General.hasEnded(at: Date()) {
-        print("Early voting ended on \(EarlyVotingSchedule.wake2026General.periodEnd!.formatted(date: .long, time: .omitted)). See https://www.wake.gov/departments-government/board-elections")
+        let sched = EarlyVotingSchedule.wake2026General
+        print("Early voting ended \(sched.periodEnd!.formatted(date: .long, time: .shortened)).")
+        if let ed = sched.electionDayHours, Date() < ed.close {
+            print("Election Day is \(ed.open.formatted(date: .complete, time: .omitted)), \(ed.open.formatted(date: .omitted, time: .shortened)) – \(ed.close.formatted(date: .omitted, time: .shortened)), at your assigned polling place.")
+        }
+        print("See https://www.wake.gov/departments-government/board-elections")
         exit(0)
     }
     print("Origin: \(originLabel) (\(origin.latitude), \(origin.longitude))\(avoidTolls ? ", avoiding tolls" : "")")

@@ -40,8 +40,8 @@ records decisions and gotchas that aren't obvious from the code.
   pins), with a CLGeocoder fallback cached in UserDefaults.
 - `SiteLocations.detailsPDF` maps the same address keys to the county's per-site "Site Details" PDFs
   (scraped from the 2026 general election page); update alongside coordinates for a new election.
-- Hours are county-wide and hard-coded in `EarlyVotingSchedule.wake2026General` (Oct 15–31 2026). Update for
-  the next election. Once `schedule.hasEnded(at:)` is true the app shows `EarlyVotingEndedView` and stops
+- Hours are county-wide and hard-coded in `EarlyVotingSchedule.wake2026General` (Oct 15–31 2026; Election Day
+  Nov 3 6:30–19:30 is stored too, for the ended screen only). Update for the next election. Once `schedule.hasEnded(at:)` is true the app shows `EarlyVotingEndedView` and stops
   refreshing; the CLI prints a one-line notice and exits.
 
 ## UX decisions the user has made (don't relitigate)

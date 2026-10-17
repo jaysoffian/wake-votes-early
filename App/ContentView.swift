@@ -10,7 +10,9 @@ struct ContentView: View {
     var body: some View {
         Group {
             if PlannerModel.schedule.hasEnded(at: model.now) {
-                EarlyVotingEndedView(endedOn: PlannerModel.schedule.periodEnd ?? model.now)
+                EarlyVotingEndedView(endedOn: PlannerModel.schedule.periodEnd ?? model.now,
+                                     electionDay: PlannerModel.schedule.electionDayHours,
+                                     now: model.now)
             } else {
                 #if os(iOS)
                 phoneLayout
