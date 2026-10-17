@@ -9,9 +9,6 @@ struct EarlyVotingEndedView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Image(systemName: "checkmark.seal")
-                .font(.system(size: 44))
-                .foregroundStyle(.secondary)
             Text("Early voting ended \(endedOn.formatted(.dateTime.month(.wide).day().year())) at \(Format.clock(endedOn)).")
                 .font(.title3.weight(.semibold))
                 .multilineTextAlignment(.center)
