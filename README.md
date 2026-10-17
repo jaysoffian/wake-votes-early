@@ -11,7 +11,7 @@ Native SwiftUI app for macOS and iOS from one Xcode project, plus a command-line
    - **Your iPhone** needs a team: select the WakeVote target → Signing & Capabilities → choose your Apple ID team. A free Apple ID works; the build expires after 7 days and you re-run from Xcode.
 3. Press Run. Type a starting address and press Return, or tap the location button. The starting point is remembered between launches.
 
-**Using it.** Sites are ranked by drive + wait + drive back. Tap a site's colored total-time capsule (or a pin's card on the map) to open driving directions in Apple Maps. Each row shows the three legs, how stale the county's wait estimate is (live), and a red note if the site would be closed by the time you arrive. Today's county-wide hours are in the status line at the bottom.
+**Using it.** Sites are ranked by drive + wait + drive back. Tap a site's colored total-time capsule to open driving directions in Apple Maps, or the document icon under it for the county's site-details PDF (parking, entrance, accessibility; shown in-app on iOS). Each row shows the three legs, how stale the county's wait estimate is (live), and a red note if the site would be closed by the time you arrive. The map colors pins by the same total and shows the same row when you tap a pin. Today's county-wide hours are in the status line at the bottom; after hours the capsule reads "Closed".
 
 - **iOS:** controls live in a glass card at the bottom: starting address, location button, an **Avoid tolls** switch, and the status line. Pull down the list to refresh. The home-screen label is **Vote Early**, since the full name doesn't fit under an icon.
 - **macOS:** address at the top, **Avoid Tolls** and **Refresh** (⌘R) in the toolbar, status line at the bottom.
@@ -45,9 +45,9 @@ WAKEVOTE_FIXTURE=saved.json wakevote-cli ...    # parse a saved Airtable respons
 | Folder | Contents |
 |---|---|
 | `Core/` | Platform-neutral data layer shared by the app and CLI: Airtable client, MapKit ETAs, rate limiter, schedule, ranking |
-| `App/` | SwiftUI app: `PlannerModel` owns the refresh loop and caches; `ContentView` has separate iOS (bottom card) and macOS (toolbar) layouts; `SiteRow`, `PlanListView`, `SiteMapView`; `Glass.swift` applies Liquid Glass on iOS 26+ with a material fallback; asset catalog with the app icon |
+| `App/` | SwiftUI app: `PlannerModel` owns the refresh loop and caches; `ContentView` has separate iOS (bottom card) and macOS (toolbar) layouts; `SiteRow`, `PlanListView`, `SiteMapView`; `Glass.swift` applies Liquid Glass on iOS 26+ with a material fallback; `SafariView.swift` shows the county PDFs in-app on iOS; asset catalog with the app icon |
 | `CLI/` | `wakevote-cli` entry point |
-| `docs/` | Support and privacy-policy pages for the App Store listing, to be served from jaysoffian.github.io via GitHub Pages; contact is via GitHub Issues |
+| `docs/` | Support and privacy-policy pages for the App Store listing, served by GitHub Pages at `jaysoffian.github.io/wake-votes-early/`; contact is via GitHub Issues |
 | `Support/` | Info.plist, plus `icon/icongen.swift` which draws the app icon (a yellow "Wake Votes Early" yard sign with a red arrow) from scratch |
 
 The Xcode project uses synchronized folders, so new files dropped into `App/`, `Core/`, or `CLI/` are picked up automatically.
