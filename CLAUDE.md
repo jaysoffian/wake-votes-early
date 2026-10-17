@@ -24,9 +24,11 @@ records decisions and gotchas that aren't obvious from the code.
   ```
   `-disable-sandbox` is required for SwiftUI/Observation macros. Real builds and simulator runs: the user runs
   them in Xcode, or via the Xcode MCP server (`xcrun mcpbridge`) if configured.
-- Debug builds honor a `WVE_NOW` environment variable (ISO 8601) as the current time, via `Clock.now`, for
-  testing the schedule/ended-screen logic. The shared scheme (`xcshareddata/xcschemes/WakeVotesEarly.xcscheme`)
-  already defines it, disabled, with a post-period value.
+- Debug builds honor two environment variables, both predefined (disabled) in the shared scheme
+  (`xcshareddata/xcschemes/WakeVotesEarly.xcscheme`): `WVE_NOW` (ISO 8601) overrides the current time via
+  `Clock.now`; `WVE_FIXTURE` (path) serves a saved Airtable response (`Support/fixtures/airtable-2026-10-16.json`,
+  real waits from that afternoon) instead of fetching. Enable both to screenshot realistic rows after hours;
+  set `WVE_NOW` to a post-period date to see the ended screen.
 - The CLI (`wakevotesearly-cli`) is a test harness for me; Jay doesn't care about it. Keep it compiling, don't
   mention it in updates, and don't spend his attention on it. Fixture mode: `WAKEVOTE_FIXTURE=/path/to.json`.
 

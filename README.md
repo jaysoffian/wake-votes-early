@@ -11,7 +11,7 @@ Native SwiftUI app for macOS and iPhone (portrait only; no iPad) from one Xcode 
    - **Your iPhone** needs a team: select the WakeVotesEarly target → Signing & Capabilities → choose your Apple ID team. A free Apple ID works; the build expires after 7 days and you re-run from Xcode.
 3. Press Run. Type a starting address and press Return, or tap the location button. The starting point is remembered between launches.
 
-The `WakeVotesEarly` scheme is checked in. To test the app on a different date (for example after early voting has ended), edit the scheme, open Run › Arguments, and enable the `WVE_NOW` environment variable (ISO 8601, debug builds only).
+The `WakeVotesEarly` scheme is checked in with two debug-only environment variables, disabled by default, under Run › Arguments: `WVE_NOW` (ISO 8601) fakes the current time, and `WVE_FIXTURE` loads a saved Airtable response from `Support/fixtures/` instead of fetching. Enable both to see realistic rows outside voting hours; set `WVE_NOW` past October 31 to see the ended screen.
 
 **Using it.** Sites are ranked by drive + wait + drive back. Tap a site's colored total-time capsule to open driving directions in Apple Maps, or the document icon under it for the county's site-details PDF (parking, entrance, accessibility; shown in-app on iOS). Each row shows the three legs, how stale the county's wait estimate is (live), and a red note if the site would be closed by the time you arrive. The map colors pins by the same total and shows the same row when you tap a pin. Today's county-wide hours are in the status line at the bottom; after hours the capsule reads "Closed".
 

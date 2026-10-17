@@ -92,7 +92,7 @@ final class PlannerModel {
         isRefreshing = true
         errorMessage = nil
         do {
-            sites = await SiteLocations.resolve(try await waitService.fetchSites())
+            sites = await SiteLocations.resolve(try await Self.fixtureSites() ?? waitService.fetchSites())
             lastRefresh = Clock.now
         } catch {
             errorMessage = "Wait times unavailable: \(error.localizedDescription)"
@@ -220,6 +220,17 @@ final class PlannerModel {
         let defaults = UserDefaults.standard
         defaults.set(coordinate.latitude, forKey: Keys.latitude)
         defaults.set(coordinate.longitude, forKey: Keys.longitude)
+    }
+
+    /// Debug builds: `WVE_FIXTURE=/path/to/airtable.json` serves a saved Airtable response instead of
+    /// fetching, so realistic rows can be screenshotted outside voting hours (pair with `WVE_NOW`).
+    private static func fixtureSites() throws -> [VotingSite]? {
+        #if DEBUG
+        guard let path = ProcessInfo.processInfo.environment["WVE_FIXTURE"], !path.isEmpty else { return nil }
+        return try WaitTimeService.parse(Data(contentsOf: URL(fileURLWithPath: path)))
+        #else
+        return nil
+        #endif
     }
 
     private static func cacheKey(_ c: CLLocationCoordinate2D, avoidTolls: Bool) -> String {
