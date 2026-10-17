@@ -1,8 +1,9 @@
 # Wake Votes Early: notes for Claude Code sessions
 
 Native SwiftUI app (macOS 14+ / iOS 17+, one multiplatform target) plus `wakevotesearly-cli`, ranking Wake County
-early-voting sites by drive there + published wait + drive back. README.md explains the product; this file
-records decisions and gotchas that aren't obvious from the code.
+early-voting sites by drive there + published wait + drive back. README.md explains the product, DEVELOPMENT.md the
+developer workflow (testing variables, simulator, screenshots, icon); this file records decisions and gotchas
+that aren't obvious from the code.
 
 ## Build and verify
 
