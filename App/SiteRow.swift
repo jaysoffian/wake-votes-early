@@ -75,6 +75,15 @@ struct SiteRow: View {
         }
     }
 
+    /// Total time when known; otherwise why not ("Closed" beats "no data" after hours).
+    private var badgeText: String {
+        if let total = plan.total { return Format.minutes(total) }
+        switch plan.status {
+        case .closedForDay, .noVotingToday: return "Closed"
+        default: return plan.waitMinutes == nil ? "no data" : "–"
+        }
+    }
+
     /// The total-time capsule doubles as the "open in Maps" button.
     private var directionsBadge: some View {
         let color = WaitColor.color(forTotal: plan.total)
@@ -82,7 +91,7 @@ struct SiteRow: View {
             Directions.open(site)
         } label: {
             HStack(spacing: 5) {
-                Text(plan.total.map(Format.minutes) ?? (plan.waitMinutes == nil ? "no data" : "–"))
+                Text(badgeText)
                     .font(.callout.weight(.bold).monospacedDigit())
                 Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
                     .font(.caption.weight(.semibold))
